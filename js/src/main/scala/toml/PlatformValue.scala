@@ -1,0 +1,3 @@
+package toml
+
+trait PlatformValue

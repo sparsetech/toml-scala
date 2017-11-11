@@ -6,7 +6,7 @@ val Scala2_12       = "2.12.4"
 val FastParse       = "1.0.0"
 val Shapeless       = "2.3.2"
 val ShapelessNative = "2.3.3-pre-1"
-val Paradise        = "2.1.0"
+val Paradise        = "2.1.1"
 val ScalaCheck      = "1.13.5"
 val ScalaTest       = "3.0.4"
 

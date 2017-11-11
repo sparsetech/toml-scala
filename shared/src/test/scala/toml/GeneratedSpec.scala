@@ -25,7 +25,7 @@ class GeneratedSpec extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("Parse doubles") {
+  ignore("Parse doubles") {
     import Generators.Numbers._
     forAll(validDoubleGen) { s: String =>
       val expected = Success(Value.Real(Rules.rmUnderscore(s).toDouble), s.length)

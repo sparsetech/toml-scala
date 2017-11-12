@@ -284,8 +284,8 @@ class CodecSpec extends FunSuite {
   }
 
   test("Error handling (5)") {
-    case class B(value: Int)
     case class A(value: Int)
+    case class B(value: Int)
     case class Root(a: A, b: B)
 
     val toml =
@@ -296,5 +296,54 @@ class CodecSpec extends FunSuite {
 
     assert(Toml.parseAs[Root](toml) ==
       Left(List("b"), "Cannot resolve `value`"))
+  }
+
+  test("Default parameters (1)") {
+    case class Root(a: Int, b: Int = 42)
+    assert(Toml.parseAs[Root]("a = 23") == Right(Root(23, 42)))
+  }
+
+  test("Default parameters (2)") {
+    case class A(value: Int, value2: Int = 99)
+    case class B(value: Int, value2: Int = 100)
+    case class Root(a: A, b: B)
+
+    val toml =
+      """
+        |a = { value = 42, value2 = 88 }
+        |b = { value = 23 }
+      """.stripMargin
+
+    assert(Toml.parseAs[Root](toml) == Right(Root(A(42, 88), B(23, 100))))
+  }
+
+  test("Default parameters (3)") {
+    case class A(value: Int)
+    case class B(value: Int)
+    case class Root(a: A, b: B = B(42))
+
+    val toml = "a = { value = 23 }"
+    assert(Toml.parseAs[Root](toml) == Right(Root(A(23), B(42))))
+  }
+
+  test("Default parameters (4)") {
+    case class A(v1: Int)
+    case class B(v2: Int = 42)
+    case class Root(a: A, b: Option[B])
+
+    val toml =
+      """
+        |a = { v1 = 23 }
+        |b = {}
+      """.stripMargin
+    assert(Toml.parseAs[Root](toml) == Right(Root(A(23), Some(B(42)))))
+  }
+
+  test("Default parameters (5)") {
+    case class A(value1: Option[String], value2: Int = 42)
+    case class Root(a: A)
+
+    val toml = "a = { }"
+    assert(Toml.parseAs[Root](toml) == Right(Root(A(None, 42))))
   }
 }

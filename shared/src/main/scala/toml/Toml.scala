@@ -14,25 +14,34 @@ object Toml {
 
   trait CodecHelperLowPrio[A] {
     def apply(value: Value)(implicit codec: Codec[A]): Either[Codec.Error, A] =
-      codec(value)
+      codec(value, Map.empty)
 
     def apply(toml: String)(implicit codec: Codec[A]): Either[Codec.Error, A] =
-      parse(toml).left.map((List.empty, _)).right.flatMap(codec(_))
+      parse(toml).left.map((List.empty, _)).right.flatMap(codec(_, Map.empty))
   }
 
   class CodecHelper[A] extends CodecHelperLowPrio[A] {
-    def apply[R <: HList](table: Value.Tbl)(implicit
-      gen  : LabelledGeneric.Aux[A, R],
-      codec: Codec[R]
-    ): Either[Codec.Error, A] = codec(table).right.map(gen.from)
+    def apply[D <: HList, R <: HList](table: Value.Tbl)(implicit
+      generic      : LabelledGeneric.Aux[A, R],
+      defaults     : Default.AsRecord.Aux[A, D],
+      defaultMapper: util.RecordToMap[D],
+      codec        : Codec[R]
+    ): Either[Codec.Error, A] = {
+      val d = defaultMapper(defaults())
+      codec(table, d).right.map(generic.from)
+    }
 
-    def apply[R <: HList](toml: String)(implicit
-      gen  : LabelledGeneric.Aux[A, R],
-      codec: Codec[R]
-    ): Either[Codec.Error, A] =
+    def apply[D <: HList, R <: HList](toml: String)(implicit
+      generic      : LabelledGeneric.Aux[A, R],
+      defaults     : Default.AsRecord.Aux[A, D],
+      defaultMapper: util.RecordToMap[D],
+      codec        : Codec[R]
+    ): Either[Codec.Error, A] = {
+      val d = defaultMapper(defaults())
       parse(toml)
         .left.map((List.empty, _))
-        .right.flatMap(codec(_).right.map(gen.from))
+        .right.flatMap(codec(_, d).right.map(generic.from))
+    }
   }
 
   def parseAs[T]: CodecHelper[T] = new CodecHelper[T]

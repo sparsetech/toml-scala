@@ -69,7 +69,7 @@ trait LowPriorityCodecs {
   }
 }
 
-object Codecs extends LowPriorityCodecs {
+object Codecs extends LowPriorityCodecs with PlatformCodecs {
   implicit val hnilFromNode: Codec[HNil] =
     Codec[HNil]((_, _) => Right(HNil))
 

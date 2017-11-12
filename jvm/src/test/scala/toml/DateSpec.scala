@@ -65,4 +65,13 @@ class DateSpec extends FunSuite with Matchers {
           LocalDate.of(1979, 5, 27), LocalTime.of(0, 32, 0, 999999000)
         ), ZoneOffset.of("-07:00")))))
   }
+
+  test("Codec derivation") {
+    import Codecs._
+
+    case class Root(ld: LocalDate)
+
+    val toml = "ld = 1979-05-27"
+    assert(Toml.parseAs[Root](toml) == Right(Root(LocalDate.of(1979, 5, 27))))
+  }
 }

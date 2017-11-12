@@ -261,7 +261,7 @@ class CodecSpec extends FunSuite {
 
     val toml = ""
     assert(Toml.parseAs[Root](toml) ==
-      Left((List("a"), "Could not resolve value")))
+      Left((List.empty, "Cannot resolve `a`")))
   }
 
   test("Error handling (3)") {
@@ -270,7 +270,7 @@ class CodecSpec extends FunSuite {
 
     val toml = "a = 1"
     assert(Toml.parseAs[Root](toml) ==
-      Left(List("a"), "Cannot resolve `b` in Num(1)"))
+      Left(List("a"), "Cannot resolve `b`"))
   }
 
   test("Error handling (4)") {
@@ -280,6 +280,21 @@ class CodecSpec extends FunSuite {
 
     val toml = "a = { b = 42 }"
     assert(Toml.parseAs[Root](toml) ==
-      Left(List("a", "b"), "Cannot resolve `c` in Num(42)"))
+      Left(List("a", "b"), "Cannot resolve `c`"))
+  }
+
+  test("Error handling (5)") {
+    case class B(value: Int)
+    case class A(value: Int)
+    case class Root(a: A, b: B)
+
+    val toml =
+      """
+        |a = { value = 42 }
+        |b = { }
+      """.stripMargin
+
+    assert(Toml.parseAs[Root](toml) ==
+      Left(List("b"), "Cannot resolve `value`"))
   }
 }

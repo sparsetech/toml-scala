@@ -37,8 +37,7 @@ trait LowPriorityCodecs {
         field[K](v) :: t
       }
 
-    case value => Left(
-      (List.empty, s"Cannot resolve `${witness.value.name}` in $value"))
+    case value => Left((List.empty, s"Table expected, $value provided"))
   }
 
   implicit def hconsFromNode[K <: Symbol, V, T <: HList](implicit
@@ -46,20 +45,17 @@ trait LowPriorityCodecs {
     fromV: Lazy[Codec[V]],
     fromT: Lazy[Codec[T]]
   ): Codec[FieldType[K, V] :: T] = Codec {
-    case value @ Value.Tbl(pairs) =>
-      val result = for {
-        v <- (pairs.get(witness.value.name) match {
-          case None    => Left(List.empty, "Could not resolve value")
-          case Some(v) => Right(v)
-        }).right
-        h <- fromV.value(v).right
-        t <- fromT.value(value).right
+    case tbl @ Value.Tbl(pairs) if pairs.contains(witness.value.name) =>
+      val value = pairs(witness.value.name)
+      for {
+        h <- fromV.value(value)
+          .left.map { case (a, m) => (witness.value.name +: a, m) }
+          .right
+        t <- fromT.value(tbl).right
       } yield field[K](h) :: t
 
-      result.left.map { case (a, m) => (witness.value.name +: a, m) }
-
     case value => Left(
-      (List.empty, s"Cannot resolve `${witness.value.name}` in $value"))
+      (List.empty, s"Cannot resolve `${witness.value.name}`"))
   }
 }
 
@@ -73,20 +69,17 @@ object Codecs extends LowPriorityCodecs {
     fromH: Codec[R],
     fromT: Codec[T]
   ): Codec[FieldType[K, V] :: T] = Codec {
-    case value @ Value.Tbl(pairs) =>
-      val result = for {
-        v <- (pairs.get(witness.value.name) match {
-          case None    => Left(List.empty, "Could not resolve value")
-          case Some(v) => Right(v)
-        }).right
-        h <- fromH(v).right
-        t <- fromT(value).right
+    case tbl @ Value.Tbl(pairs) if pairs.contains(witness.value.name) =>
+      val value = pairs(witness.value.name)
+      for {
+        h <- fromH(value)
+          .left.map { case (a, m) => (witness.value.name +: a, m) }
+          .right
+        t <- fromT(tbl).right
       } yield field[K](gen.from(h)) :: t
 
-      result.left.map { case (a, m) => (witness.value.name +: a, m) }
-
     case value => Left(
-      (List.empty, s"Cannot resolve `${witness.value.name}` in $value"))
+      (List.empty, s"Cannot resolve `${witness.value.name}`"))
   }
 
   implicit def hconsFromNode1Opt[K <: Symbol, V, R <: HList, T <: HList](implicit
@@ -104,8 +97,7 @@ object Codecs extends LowPriorityCodecs {
         field[K](v) :: t
       }
 
-    case value =>
-       Left((List.empty, s"Cannot resolve `${witness.value.name}` in $value"))
+    case value => Left((List.empty, s"Table expected, $value provided"))
   }
 
   implicit val stringCodec: Codec[String] = Codec {

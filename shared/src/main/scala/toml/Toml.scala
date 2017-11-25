@@ -12,15 +12,7 @@ object Toml {
       case f: Failure[_, _] => Left(f.msg)
     }
 
-  trait CodecHelperLowPrio[A] {
-    def apply(value: Value)(implicit codec: Codec[A]): Either[Codec.Error, A] =
-      codec(value, Map.empty)
-
-    def apply(toml: String)(implicit codec: Codec[A]): Either[Codec.Error, A] =
-      parse(toml).left.map((List.empty, _)).right.flatMap(codec(_, Map.empty))
-  }
-
-  class CodecHelper[A] extends CodecHelperLowPrio[A] {
+  class CodecHelperGeneric[A] {
     def apply[D <: HList, R <: HList](table: Value.Tbl)(implicit
       generic      : LabelledGeneric.Aux[A, R],
       defaults     : Default.AsRecord.Aux[A, D],
@@ -44,5 +36,14 @@ object Toml {
     }
   }
 
-  def parseAs[T]: CodecHelper[T] = new CodecHelper[T]
+  class CodecHelperValue[A] {
+    def apply(value: Value)(implicit codec: Codec[A]): Either[Codec.Error, A] =
+      codec(value, Map.empty)
+
+    def apply(toml: String)(implicit codec: Codec[A]): Either[Codec.Error, A] =
+      parse(toml).left.map((List.empty, _)).right.flatMap(codec(_, Map.empty))
+  }
+
+  def parseAs     [T]: CodecHelperGeneric[T] = new CodecHelperGeneric[T]
+  def parseAsValue[T]: CodecHelperValue  [T] = new CodecHelperValue[T]
 }

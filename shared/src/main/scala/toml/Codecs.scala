@@ -99,7 +99,7 @@ object Codecs extends LowPriorityCodecs with PlatformCodecs {
 
   implicit def listCodec[T](implicit codec: Codec[T]): Codec[List[T]] = Codec {
     case (Value.Arr(elems), _) =>
-      elems.foldLeft(Right(List.empty[T]): Either[Codec.Error, List[T]]) {
+      elems.foldLeft(Right(List.empty): Either[Codec.Error, List[T]]) {
         case (Right(acc), cur) => codec(cur, Map.empty).right.map(acc :+ _)
         case (acc       , _  ) => acc
       }
@@ -107,11 +107,26 @@ object Codecs extends LowPriorityCodecs with PlatformCodecs {
     case (value, _) => Left((List.empty, s"List expected, $value provided"))
   }
 
+  implicit def tableCodec[T](implicit codec: Codec[T]): Codec[Map[String, T]] =
+    Codec {
+      case (Value.Tbl(value), _) =>
+        value.foldLeft(Right(Map.empty): Either[Codec.Error, Map[String, T]]) {
+          case (Left(l), _) => Left(l)
+          case (Right(r), (k, v)) =>
+            codec(v, Map.empty) match {
+              case Left(l)   => Left(l)
+              case Right(v2) => Right(r + (k -> v2))
+            }
+        }
+
+      case (value, _) => Left((List.empty, s"Table expected, $value provided"))
+    }
+
   implicit def genericCodec[A, D <: HList, R <: HList](implicit
-    defaults: Default.AsRecord.Aux[A, D],
+    generic      : LabelledGeneric.Aux[A, R],
+    defaults     : Default.AsRecord.Aux[A, D],
     defaultMapper: util.RecordToMap[D],
-    generic: LabelledGeneric.Aux[A, R],
-    codec: Codec[R]
+    codec        : Codec[R]
   ): Codec[A] = {
     val d = defaultMapper(defaults())
     Codec((v, _) => codec(v, d).right.map(generic.from))

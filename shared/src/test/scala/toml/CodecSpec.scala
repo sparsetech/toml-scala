@@ -7,7 +7,7 @@ import Codecs._
 class CodecSpec extends FunSuite {
   test("Strings") {
     val elem = Rules.elem.parse("\"test\"").get.value
-    val result = new Toml.CodecHelper[String].apply(elem)
+    val result = new Toml.CodecHelperValue[String].apply(elem)
     assert(result == Right("test"))
   }
 
@@ -40,7 +40,7 @@ class CodecSpec extends FunSuite {
 
   test("Lists") {
     val elem = Rules.elem.parse("""["test", "a"]""").get.value
-    val result = new Toml.CodecHelper[List[String]].apply(elem)
+    val result = new Toml.CodecHelperValue[List[String]].apply(elem)
     assert(result == Right(List("test", "a")))
   }
 
@@ -246,6 +246,19 @@ class CodecSpec extends FunSuite {
         Variety("granny smith")
       )),
       Fruit("banana", None, List(Variety("plantain")))))))
+  }
+
+  test("Table codec") {
+    val array =
+      """
+        |a = 23
+        |b = 42
+      """.stripMargin
+
+    assert(Toml.parseAsValue[Map[String, Int]](array) == Right(Map(
+      "a" -> 23,
+      "b" -> 42
+    )))
   }
 
   test("Error handling") {

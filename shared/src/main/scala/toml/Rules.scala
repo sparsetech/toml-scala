@@ -96,7 +96,7 @@ object Rules extends PlatformRules {
     P("[" ~ skip ~ elem.rep(sep = "," ~ skip) ~ ",".? ~ skip ~ "]")
       .map(l => Value.Arr(l.toList))
   val inlineTable: Parser[Value.Tbl] =
-    P("{" ~ skip ~ pair.rep(sep = "," ~ skip) ~ "}")
+    P("{" ~ skip ~ pair.rep(sep = "," ~ skip) ~ ",".? ~ skip ~ "}")
       .map(p => Value.Tbl(p.toMap))
 
   val tableIds: Parser[Seq[String]] =

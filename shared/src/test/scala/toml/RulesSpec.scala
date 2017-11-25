@@ -63,6 +63,17 @@ class RulesSpec extends FunSuite with Matchers {
     testSuccess(example)
   }
 
+  test("Parse inline tables") {
+    val example =
+      """
+        |a = { name = "value", name2 = "value2" }
+        |b = { name = "value",
+        |      # Trailing comma
+        |    }
+      """.stripMargin
+    testSuccess(example)
+  }
+
   test("Parse complex table keys") {
     val example =
       """[asdf."bit#"]

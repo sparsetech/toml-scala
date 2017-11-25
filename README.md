@@ -84,6 +84,24 @@ case class Root(a: Int, table: Option[Table])
 Toml.parseAs[Root]("a = 1")  // Right(Root(1, None))
 ```
 
+#### Define custom codecs
+```scala
+case class Currency(name: String)
+implicit val currencyCodec: Codec[Currency] = Codec {
+  case (Value.Str(value), _) =>
+    value match {
+      case "EUR" => Right(Currency("EUR"))
+      case "BTC" => Right(Currency("BTC"))
+      case _     => Left((List.empty, s"Invalid currency: $value"))
+    }
+
+  case (value, _) => Left((List.empty, s"Currency expected, $value provided"))
+}
+
+case class Root(currency: Currency)
+Toml.parseAs[Root]("""currency = "BTC"""")  // Right(Root(Currency(BTC)))
+```
+
 ## Links
 * [ScalaDoc](https://www.javadoc.io/doc/tech.sparse/toml-scala_2.12/)
 

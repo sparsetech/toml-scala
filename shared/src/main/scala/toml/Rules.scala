@@ -90,11 +90,14 @@ object Rules extends PlatformRules {
   val bareKey = P((letters | digits | dashes).rep(min = 1)).!
   val validKey: Parser[String] =
     P(bareKey | NoCut(basicStr) | NoCut(literalStr)).!
-  lazy val pair: Parser[(String, Value)] =
+  val pair: Parser[(String, Value)] =
     P(validKey ~ whitespaces.? ~ "=" ~ whitespaces.? ~ elem)
-  lazy val array: Parser[Value.Arr] =
+  val array: Parser[Value.Arr] =
     P("[" ~ skip ~ elem.rep(sep = "," ~ skip) ~ ",".? ~ skip ~ "]")
       .map(l => Value.Arr(l.toList))
+  val inlineTable: Parser[Value.Tbl] =
+    P("{" ~ skip ~ pair.rep(sep = "," ~ skip) ~ "}")
+      .map(p => Value.Tbl(p.toMap))
 
   val tableIds: Parser[Seq[String]] =
     P(validKey.rep(min = 1, sep = whitespaces.? ~ "." ~ whitespaces.?))
@@ -116,10 +119,6 @@ object Rules extends PlatformRules {
         a.map(ParserUtil.cleanStr).toList,
         b.toMap)
     }
-
-  val inlineTable: Parser[Value.Tbl] =
-    P("{" ~ skip ~ pair.rep(sep = "," ~ skip) ~ "}")
-      .map(p => Value.Tbl(p.toMap))
 
   lazy val elem: Parser[Value] = P {
     skip ~

@@ -1,6 +1,6 @@
 # toml-scala
 [![Build Status](https://travis-ci.org/sparsetech/toml-scala.svg)](https://travis-ci.org/sparsetech/toml-scala)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/tech.sparse/toml-scala_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/tech.sparse/toml-scala_2.12)
+[![Maven Central](https://img.shields.io/maven-central/v/tech.sparse/toml-scala_2.12.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22tech.sparse%22%20AND%20a%3A%22toml-scala_2.12%22)
 
 toml-scala is a feature-complete implementation of [TOML](https://github.com/toml-lang/toml) for the Scala platform. It can parse TOML content into an AST or map it onto `case class` hierarchies.
 

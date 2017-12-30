@@ -1,7 +1,7 @@
 // Shadow sbt-scalajs' crossProject and CrossType until Scala.js 1.0.0 is released
 import sbtcrossproject.{crossProject, CrossType}
 
-val Scala2_11       = "2.11.11"
+val Scala2_11       = "2.11.12"
 val Scala2_12       = "2.12.4"
 val FastParse       = "1.0.0"
 val Shapeless       = "2.3.2"
@@ -42,7 +42,7 @@ enablePlugins(ScalaNativePlugin)
 lazy val root = project.in(file("."))
   .aggregate(tomlJS, tomlJVM, tomlNative)
   .settings(SharedSettings: _*)
-  .settings(publishArtifact := false)
+  .settings(skip in publish := false)
 
 lazy val toml =
   crossProject(JSPlatform, JVMPlatform, NativePlatform)

@@ -42,7 +42,7 @@ enablePlugins(ScalaNativePlugin)
 lazy val root = project.in(file("."))
   .aggregate(tomlJS, tomlJVM, tomlNative)
   .settings(SharedSettings: _*)
-  .settings(skip in publish := false)
+  .settings(skip in publish := true)
 
 lazy val toml =
   crossProject(JSPlatform, JVMPlatform, NativePlatform)

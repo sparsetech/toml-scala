@@ -25,8 +25,8 @@ toml-scala is a feature-complete implementation of [TOML](https://github.com/tom
 
 ### Dependencies
 ```scala
-libraryDependencies += "tech.sparse" %%  "toml-scala" % "0.1.0"  // JVM
-libraryDependencies += "tech.sparse" %%% "toml-scala" % "0.1.0"  // JavaScript, LLVM
+libraryDependencies += "tech.sparse" %%  "toml-scala" % "0.1.1"  // JVM
+libraryDependencies += "tech.sparse" %%% "toml-scala" % "0.1.1"  // JavaScript, LLVM
 ```
 
 ## Examples

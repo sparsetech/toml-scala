@@ -1,14 +1,13 @@
 // Shadow sbt-scalajs' crossProject and CrossType until Scala.js 1.0.0 is released
 import sbtcrossproject.{crossProject, CrossType}
 
-val Scala2_11       = "2.11.12"
-val Scala2_12       = "2.12.4"
-val FastParse       = "1.0.0"
-val Shapeless       = "2.3.2"
-val ShapelessNative = "2.3.3-pre-1"
-val Paradise        = "2.1.1"
-val ScalaCheck      = "1.13.5"
-val ScalaTest       = "3.0.4"
+val Scala2_11  = "2.11.12"
+val Scala2_12  = "2.12.4"
+val FastParse  = "1.0.0"
+val Shapeless  = "2.3.3"
+val Paradise   = "2.1.1"
+val ScalaCheck = "1.13.5"
+val ScalaTest  = "3.0.4"
 
 val SharedSettings = Seq(
   name         := "toml-scala",
@@ -51,19 +50,18 @@ lazy val toml =
     .settings(
       libraryDependencies ++= Seq(
         "com.lihaoyi" %%% "fastparse" % FastParse,
+        "com.chuusai" %%% "shapeless" % Shapeless,
         compilerPlugin("org.scalamacros" % "paradise" % Paradise cross CrossVersion.full)
       )
     )
     .jsSettings(
       libraryDependencies ++= Vector(
-        "com.chuusai"    %%% "shapeless"  % Shapeless,
         "org.scalacheck" %%% "scalacheck" % ScalaCheck % "test",
         "org.scalatest"  %%% "scalatest"  % ScalaTest  % "test"
       )
     )
     .jvmSettings(
       libraryDependencies ++= Vector(
-        "com.chuusai"    %% "shapeless"  % Shapeless,
         "org.scalacheck" %% "scalacheck" % ScalaCheck % "test",
         "org.scalatest"  %% "scalatest"  % ScalaTest  % "test"
       )
@@ -71,9 +69,6 @@ lazy val toml =
     .nativeSettings(
       scalaVersion       := Scala2_11,
       crossScalaVersions := Seq(Scala2_11),
-      libraryDependencies ++= Vector(
-        "com.github.alexarchambault" %%% "shapeless" % ShapelessNative
-      ),
       excludeFilter in Test := "*"
     )
 

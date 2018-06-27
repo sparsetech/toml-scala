@@ -34,12 +34,16 @@ trait LowPriorityCodecs {
     fromT: Lazy[Codec[T]]
   ): Codec[FieldType[K, Option[V]] :: T] = Codec {
     case (value @ Value.Tbl(pairs), defaults) =>
-      fromT.value(value, defaults).right.map { t =>
-        val v = pairs.get(witness.value.name)
-          .flatMap(fromV.value(_, defaults).right.toOption)
-
-        field[K](v) :: t
-      }
+      fromT.value(value, defaults).right.flatMap(t =>
+        pairs.get(witness.value.name) match {
+          case None    => Right(field[K](None) :: t)
+          case Some(v) =>
+            for {
+              k <- fromV.value(v, defaults)
+                .left.map { case (a, m) => (witness.value.name +: a, m) }
+                .right
+            } yield field[K](Some(k)) :: t
+        })
 
     case value => Left((List.empty, s"Table expected, $value provided"))
   }
@@ -114,8 +118,8 @@ object Codecs extends LowPriorityCodecs with PlatformCodecs {
           case (Left(l), _) => Left(l)
           case (Right(r), (k, v)) =>
             codec(v, Map.empty) match {
-              case Left(l)   => Left(l)
-              case Right(v2) => Right(r + (k -> v2))
+              case Left((a, m)) => Left((k +: a, m))
+              case Right(v2)    => Right(r + (k -> v2))
             }
         }
 

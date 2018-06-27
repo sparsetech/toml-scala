@@ -311,6 +311,20 @@ class CodecSpec extends FunSuite {
       Left(List("b"), "Cannot resolve `value`"))
   }
 
+  test("Error handling (6)") {
+    // Despite of the default value, an error must be triggered
+    case class Module(a: Option[Module] = None,
+                      b: List[List[Int]] = List())
+    case class Root(module: Map[String, Module])
+    val toml =
+      """
+        |[module.name.a]
+        |b = [1, 2, 3]
+      """.stripMargin
+    assert(Toml.parseAs[Root](toml) ==
+           Left(List("module", "name", "a", "b"), "List expected, Num(1) provided"))
+  }
+
   test("Default parameters (1)") {
     case class Root(a: Int, b: Int = 42)
     assert(Toml.parseAs[Root]("a = 23") == Right(Root(23, 42)))

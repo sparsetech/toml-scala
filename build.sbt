@@ -50,8 +50,7 @@ lazy val toml =
     .settings(
       libraryDependencies ++= Seq(
         "com.lihaoyi" %%% "fastparse" % FastParse,
-        "com.chuusai" %%% "shapeless" % Shapeless,
-        compilerPlugin("org.scalamacros" % "paradise" % Paradise cross CrossVersion.full)
+        "com.chuusai" %%% "shapeless" % Shapeless
       )
     )
     .jsSettings(

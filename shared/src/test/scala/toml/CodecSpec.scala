@@ -143,7 +143,7 @@ class CodecSpec extends FunSuite {
     assert(Toml.parseAs[Root](table) == Right(Root(Point(1, 2))))
   }
 
-  test("Inline table list") {
+  test("Inline list of tables") {
     val tableList =
       """
         |points = [ { x = 1, y = 2, z = 3 },
@@ -158,6 +158,68 @@ class CodecSpec extends FunSuite {
       Point(1, 2, 3),
       Point(7, 8, 9),
       Point(2, 4, 8)))))
+  }
+
+  test("Inline list of tuples") {
+    val tableList =
+      """
+        |points = [ [ 1, "2", 3 ],
+        |           [ 7, "8", 9 ],
+        |           [ 2, "4", 8 ] ]
+      """.stripMargin
+
+    case class Point(x: Int, y: String, z: Int)
+    case class Root(points: List[Point])
+
+    assert(Toml.parseAs[Root](tableList) == Right(Root(List(
+      Point(1, "2", 3),
+      Point(7, "8", 9),
+      Point(2, "4", 8)))))
+  }
+
+  test("Inline list of tuples (2)") {
+    val tableList = """points = [ [ ] ]"""
+
+    case class Point(x: Int)
+    case class Root(points: List[Point])
+
+    assert(Toml.parseAs[Root](tableList) == Left((List("points"), "Cannot resolve `x`")))
+  }
+
+  test("Inline list of tuples with default values") {
+    val tableList = """points = [ [ 1, "2" ], [ 7 ], [ ] ]"""
+
+    case class Point(x: Int = 23, y: String = "y", z: Int = 42)
+    case class Root(points: List[Point])
+
+    assert(Toml.parseAs[Root](tableList) == Right(Root(List(
+      Point(1, "2", 42),
+      Point(7, "y", 42),
+      Point(23, "y", 42)))))
+  }
+
+  test("Inline list of tuples with default values (2)") {
+    val tableList = """points = [ [ 1, "2" ], [ 7 ], [ ] ]"""
+
+    case class Point(x: Int = 23, y: Option[String])
+    case class Root(points: List[Point])
+
+    assert(Toml.parseAs[Root](tableList) == Right(Root(List(
+      Point(1, Some("2")),
+      Point(7, None),
+      Point(23, None)))))
+  }
+
+  test("Inline list of tuples with default values (3)") {
+    val tableList = """points = [ [ 1, "2" ], [ 7 ], [ ] ]"""
+
+    case class Point(x: Option[Int] = Some(23), y: Option[String])
+    case class Root(points: List[Point])
+
+    assert(Toml.parseAs[Root](tableList) == Right(Root(List(
+      Point(Some(1), Some("2")),
+      Point(Some(7), None),
+      Point(Some(23), None)))))
   }
 
   test("Array of tables (1)") {

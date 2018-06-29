@@ -32,11 +32,16 @@ trait LowPriorityCodecs {
     witness: Witness.Aux[K],
     fromV: Lazy[Codec[V]],
     fromT: Lazy[Codec[T]]
-  ): Codec[FieldType[K, Option[V]] :: T] = Codec {
-    case (value @ Value.Tbl(pairs), defaults) =>
-      fromT.value(value, defaults).right.flatMap(t =>
-        pairs.get(witness.value.name) match {
-          case None    => Right(field[K](None) :: t)
+  ): Codec[FieldType[K, Option[V]] :: T] = {
+    import witness.value.{name => witnessName}
+
+    def f(head: Option[Value],
+          tail: Value,
+          default: Option[V],
+          defaults: Map[String, Any]) =
+      fromT.value(tail, defaults).right.flatMap(t =>
+        head match {
+          case None    => Right(field[K](default) :: t)
           case Some(v) =>
             for {
               k <- fromV.value(v, defaults)
@@ -45,31 +50,56 @@ trait LowPriorityCodecs {
             } yield field[K](Some(k)) :: t
         })
 
-    case value => Left((List.empty, s"Table expected, $value provided"))
+    def resolve(defaults: Map[String, Any], key: String): Option[V] =
+      defaults.get(key).asInstanceOf[Option[Option[V]]].flatten
+
+    Codec {
+      case (Value.Tbl(pairs), defaults) =>
+        f(pairs.get(witnessName),
+          Value.Tbl(pairs - witnessName),
+          resolve(defaults, witnessName),
+          defaults)
+
+      case (Value.Arr(head +: tail), defaults) =>
+        f(Some(head), Value.Arr(tail), resolve(defaults, witnessName), defaults)
+
+      case (value: Value.Arr, defaults) =>
+        f(None, value, resolve(defaults, witnessName), defaults)
+
+      case value => Left((List.empty, s"Table or Array expected, $value provided"))
+    }
   }
 
   implicit def hconsFromNode[K <: Symbol, V, T <: HList](implicit
     witness: Witness.Aux[K],
     fromV: Lazy[Codec[V]],
     fromT: Lazy[Codec[T]]
-  ): Codec[FieldType[K, V] :: T] = Codec {
-    case (tbl @ Value.Tbl(pairs), defaults)
-      if pairs.contains(witness.value.name) =>
-      val value = pairs(witness.value.name)
+  ): Codec[FieldType[K, V] :: T] = {
+    import witness.value.{name => witnessName}
 
+    def f(head: Value, tail: Value, defaults: Map[String, Any]) =
       for {
-        h <- fromV.value(value, defaults)
-          .left.map { case (a, m) => (witness.value.name +: a, m) }
+        h <- fromV.value(head, defaults)
+          .left.map { case (a, m) => (witnessName +: a, m) }
           .right
-        t <- fromT.value(tbl, defaults).right
+        t <- fromT.value(tail, defaults).right
       } yield field[K](h) :: t
 
-    case (tbl: Value.Tbl, defaults) if defaults.contains(witness.value.name) =>
-      val h = defaults(witness.value.name).asInstanceOf[V]
-      fromT.value(tbl, defaults).right.map(t => field[K](h) :: t)
+    Codec {
+      case (Value.Tbl(pairs), defaults) if pairs.contains(witnessName) =>
+        f(pairs(witnessName), Value.Tbl(pairs - witnessName), defaults)
 
-    case (value, _) =>
-      Left((List.empty, s"Cannot resolve `${witness.value.name}`"))
+      case (Value.Arr(head +: tail), defaults) =>
+        f(head, Value.Arr(tail), defaults)
+
+      case (value, defaults) if defaults.contains(witnessName) && (
+        value.isInstanceOf[Value.Tbl] || value.isInstanceOf[Value.Arr]
+      ) =>
+        val h = defaults(witnessName).asInstanceOf[V]
+        fromT.value(value, defaults).right.map(t => field[K](h) :: t)
+
+      case (value, _) => Left((List.empty, s"Cannot resolve `${witnessName}`"))
+    }
   }
 }
 

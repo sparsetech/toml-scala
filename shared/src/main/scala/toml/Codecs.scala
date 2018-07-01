@@ -108,6 +108,8 @@ object Codecs extends LowPriorityCodecs with PlatformCodecs {
     Codec[HNil] {
       case (Value.Tbl(pairs), defaults) if pairs.nonEmpty =>
         Left((List(pairs.keySet.head), "Unknown field"))
+      case (Value.Arr(elems), defaults) if elems.nonEmpty =>
+        Left((List(), s"Too many elements; remove ${elems.head}"))
       case _ => Right(HNil)
     }
 

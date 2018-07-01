@@ -273,6 +273,16 @@ class CodecSpec extends FunSuite {
       Point(Some(23), None)))))
   }
 
+  test("Inline list of tuples with default values (4)") {
+    val tableList = """points = [ [ 1, "2" ] ]"""
+
+    case class Point(x: Option[Int] = Some(23))
+    case class Root(points: List[Point])
+
+    assert(Toml.parseAs[Root](tableList) == Left(List("points"),
+      "Too many elements; remove Str(2)"))
+  }
+
   test("Array of tables (1)") {
     case class Product(name  : String,
                        sku   : Int,

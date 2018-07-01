@@ -45,7 +45,7 @@ trait LowPriorityCodecs {
           case Some(v) =>
             for {
               k <- fromV.value(v, defaults)
-                .left.map { case (a, m) => (witness.value.name +: a, m) }
+                .left.map { case (a, m) => (witnessName +: a, m) }
                 .right
             } yield field[K](Some(k)) :: t
         })
@@ -105,7 +105,11 @@ trait LowPriorityCodecs {
 
 object Codecs extends LowPriorityCodecs with PlatformCodecs {
   implicit val hnilFromNode: Codec[HNil] =
-    Codec[HNil]((_, _) => Right(HNil))
+    Codec[HNil] {
+      case (Value.Tbl(pairs), defaults) if pairs.nonEmpty =>
+        Left((List(pairs.keySet.head), "Unknown field"))
+      case _ => Right(HNil)
+    }
 
   implicit val stringCodec: Codec[String] = Codec {
     case (Value.Str(value), _) => Right(value)

@@ -72,6 +72,17 @@ class CodecSpec extends FunSuite {
     assert(Toml.parseAs[Pairs](pairs) == Right(Pairs(1, 2)))
   }
 
+  test("Unknown pair") {
+    case class Pair(a: Int)
+
+    val pairs =
+      """b = 2
+        |a = 1
+      """.stripMargin
+    val res = Toml.parseAs[Pair](pairs)
+    assert(res == Left(List("b"), "Unknown field"))
+  }
+
   test("Table") {
     case class Table(a: Int)
     case class Root(table: Table)
@@ -148,6 +159,18 @@ class CodecSpec extends FunSuite {
        == Right(Root(Table(Table2(23), Table3(42)))))
   }
 
+  test("Unknown table") {
+    case class Table(a: Int)
+    case class Root(table: Table = Table(42))
+
+    val table =
+      """
+        |[table2]
+        |a = 1
+      """.stripMargin
+    assert(Toml.parseAs[Root](table) == Left(List("table2"), "Unknown field"))
+  }
+
   test("Inline table") {
     val table = "point = { x = 1, y = 2 }"
 
@@ -172,6 +195,20 @@ class CodecSpec extends FunSuite {
       Point(1, 2, 3),
       Point(7, 8, 9),
       Point(2, 4, 8)))))
+  }
+
+  test("Inline list of tables with unknown field") {
+    val tableList =
+      """
+        |points = [ { x = 1, y = 2 },
+        |           { x = 7, y = 8, z = 9 } ]
+      """.stripMargin
+
+    case class Point(x: Int, y: Int)
+    case class Root(points: List[Point])
+
+    assert(Toml.parseAs[Root](tableList) ==
+           Left(List("points", "z"), "Unknown field"))
   }
 
   test("Inline list of tuples") {

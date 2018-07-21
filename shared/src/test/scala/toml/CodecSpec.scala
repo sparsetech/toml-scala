@@ -5,6 +5,20 @@ import org.scalatest.FunSuite
 import Codecs._
 
 class CodecSpec extends FunSuite {
+  test("Booleans") {
+    case class BoolPair(a: Boolean, b: Boolean)
+
+    val pair =
+      """
+        |a = true
+        |b = false
+      """.stripMargin
+
+    val result = Toml.parseAs[BoolPair](pair)
+
+    assert(result == Right(BoolPair(a = true, b = false)))
+  }
+
   test("Strings") {
     val elem = Rules.elem.parse("\"test\"").get.value
     val result = new Toml.CodecHelperValue[String].apply(elem)

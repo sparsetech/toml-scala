@@ -131,6 +131,12 @@ object Codecs extends LowPriorityCodecs with PlatformCodecs {
       Left((List.empty, s"Double expected, $value provided"))
   }
 
+  implicit val boolCodec: Codec[Boolean] = Codec {
+    case (Value.Bool(value), _) => Right(value)
+    case (value            , _) =>
+      Left((List.empty, s"Bool expected, $value provided"))
+  }
+
   implicit def listCodec[T](implicit codec: Codec[T]): Codec[List[T]] = Codec {
     case (Value.Arr(elems), _) =>
       elems.foldLeft(Right(List.empty): Either[Codec.Error, List[T]]) {

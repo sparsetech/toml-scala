@@ -20,7 +20,7 @@ object Toml {
       codec        : Codec[R]
     ): Either[Codec.Error, A] = {
       val d = defaultMapper(defaults())
-      codec(table, d).right.map(generic.from)
+      codec(table, d, 0).right.map(generic.from)
     }
 
     def apply[D <: HList, R <: HList](toml: String)(implicit
@@ -32,16 +32,16 @@ object Toml {
       val d = defaultMapper(defaults())
       parse(toml)
         .left.map((List.empty, _))
-        .right.flatMap(codec(_, d).right.map(generic.from))
+        .right.flatMap(codec(_, d, 0).right.map(generic.from))
     }
   }
 
   class CodecHelperValue[A] {
     def apply(value: Value)(implicit codec: Codec[A]): Either[Codec.Error, A] =
-      codec(value, Map.empty)
+      codec(value, Map.empty, 0)
 
     def apply(toml: String)(implicit codec: Codec[A]): Either[Codec.Error, A] =
-      parse(toml).left.map((List.empty, _)).right.flatMap(codec(_, Map.empty))
+      parse(toml).left.map((List.empty, _)).right.flatMap(codec(_, Map.empty, 0))
   }
 
   def parseAs     [T]: CodecHelperGeneric[T] = new CodecHelperGeneric[T]

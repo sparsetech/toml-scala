@@ -49,14 +49,6 @@ class GeneratedSpec extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("Parse single and double-quoted strings") {
-    import Generators.Strings._
-    forAll(validStrGen) { s: String =>
-      val expected = Success(Value.Str(ParserUtil.cleanStr(s)), s.length)
-      Rules.elem.parse(s) shouldBe expected
-    }
-  }
-
   property("Detect if any string is unbalanced (missing quote)") {
     import Generators.Strings._
     forAll(invalidStrGen) { s: String =>

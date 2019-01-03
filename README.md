@@ -15,14 +15,14 @@ toml-scala is a feature-complete implementation of [TOML](https://github.com/tom
 - Property-based unit tests
 
 ## Compatibility
-| Back end   | Scala versions | Date support | Tests  |
-|:-----------|:---------------|:-------------|:-------|
-| JVM        | 2.11, 2.12     | Yes          | Yes    |
-| JavaScript | 2.11, 2.12     | No (1)       | Yes    |
-| LLVM       | 2.11           | No (1)       | No (2) |
+| Back end   | Scala versions | Date support | Tests         |
+|:-----------|:---------------|:-------------|:--------------|
+| JVM        | 2.11, 2.12     | Yes          | Yes           |
+| JavaScript | 2.11, 2.12     | No (1)       | Yes           |
+| LLVM       | 2.11           | No (1)       | Partially (2) |
 
 * (1) JavaScript and LLVM have insufficient support for the JDK8's `java.time`. Parsing of dates and times is presently only possible under the JVM.
-* (2) Presently, Scala Native does not support running ScalaTest/ScalaCheck test suites.
+* (2) Presently, Scala Native does not support running ScalaCheck test suites.
 
 ### Dependencies
 ```scala

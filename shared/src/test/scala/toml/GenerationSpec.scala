@@ -229,14 +229,19 @@ class GenerationSpec extends FunSuite {
   }
 
   test("Encoding positive real value") {
-    val root = Root(List(Pair("a", Real(100.12))))
-    val result = """a = 100.12"""
-    check(root, result)
+    // See https://github.com/scala-native/scala-native/pull/1298
+    if (System.getProperty("java.vm.name") != "Scala Native") {
+      val root = Root(List(Pair("a", Real(100.12))))
+      val result = """a = 100.12"""
+      check(root, result)
+    }
   }
 
   test("Encoding negative real value") {
-    val root = Root(List(Pair("a", Real(-100.12))))
-    val result = """a = -100.12"""
-    check(root, result)
+    if (System.getProperty("java.vm.name") != "Scala Native") {
+      val root = Root(List(Pair("a", Real(-100.12))))
+      val result = """a = -100.12"""
+      check(root, result)
+    }
   }
 }

@@ -1,13 +1,14 @@
-// Shadow sbt-scalajs' crossProject and CrossType until Scala.js 1.0.0 is released
-import sbtcrossproject.{crossProject, CrossType}
+// shadow sbt-scalajs' crossProject and CrossType from Scala.js 0.6.x
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 val Scala2_11  = "2.11.12"
-val Scala2_12  = "2.12.4"
+val Scala2_12  = "2.12.8"
 val FastParse  = "1.0.0"
 val Shapeless  = "2.3.3"
 val Paradise   = "2.1.1"
-val ScalaCheck = "1.13.5"
-val ScalaTest  = "3.0.4"
+val ScalaCheck = "1.14.0"
+val ScalaTest  = "3.0.5"
+val ScalaTestNative = "3.2.0-SNAP10"
 
 val SharedSettings = Seq(
   name         := "toml-scala",
@@ -36,10 +37,8 @@ val SharedSettings = Seq(
     </developers>
 )
 
-enablePlugins(ScalaNativePlugin)
-
 lazy val root = project.in(file("."))
-  .aggregate(tomlJS, tomlJVM, tomlNative)
+  .aggregate(toml.js, toml.jvm, toml.native)
   .settings(SharedSettings: _*)
   .settings(skip in publish := true)
 
@@ -68,9 +67,10 @@ lazy val toml =
     .nativeSettings(
       scalaVersion       := Scala2_11,
       crossScalaVersions := Seq(Scala2_11),
-      excludeFilter in Test := "*"
+      // See https://github.com/scalalandio/chimney/issues/78#issuecomment-419705142
+      nativeLinkStubs    := true,
+      libraryDependencies ++= Vector(
+        "org.scalatest" %%% "scalatest" % ScalaTestNative  % "test"
+      ),
+      excludeFilter in Test := "*GeneratedSpec*" || "*Generators*"
     )
-
-lazy val tomlJS     = toml.js
-lazy val tomlJVM    = toml.jvm
-lazy val tomlNative = toml.native

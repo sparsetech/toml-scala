@@ -2,7 +2,6 @@ package toml
 
 import shapeless._
 
-import fastparse.all._
 import fastparse.core.Parsed._
 
 object Toml {
@@ -11,6 +10,8 @@ object Toml {
       case Success(v, _)    => Right(Embed.root(v))
       case f: Failure[_, _] => Left(f.msg)
     }
+
+  def generate(root: Root): String = Generate.generate(root)
 
   class CodecHelperGeneric[A] {
     def apply[D <: HList, R <: HList](table: Value.Tbl)(implicit

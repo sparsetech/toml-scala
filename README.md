@@ -10,6 +10,7 @@ toml-scala is a feature-complete implementation of [TOML](https://github.com/tom
 - Codec derivation
     - Optional values
     - Custom codecs
+- Generating TOML from ASTs
 - Error handling
 - Property-based unit tests
 
@@ -100,6 +101,27 @@ implicit val currencyCodec: Codec[Currency] = Codec {
 
 case class Root(currency: Currency)
 Toml.parseAs[Root]("""currency = "BTC"""")  // Right(Root(Currency(BTC)))
+```
+
+#### Generate TOML
+```scala
+val root = Root(List(Pair("scalaDeps", Arr(List(
+  Arr(List(Str("io.monix"), Str("minitest"), Str("2.2.2"))),
+  Arr(List(Str("org.scalacheck"), Str("scalacheck"), Str("1.14.0"))),
+  Arr(List(Str("org.scalatest"), Str("scalatest"), Str("3.2.0-SNAP10")))
+)))))
+
+Toml.generate(root)
+```
+
+Returns:
+
+```toml
+scalaDeps = [
+  ["io.monix", "minitest", "2.2.2"],
+  ["org.scalacheck", "scalacheck", "1.14.0"],
+  ["org.scalatest", "scalatest", "3.2.0-SNAP10"]
+]
 ```
 
 ## Links

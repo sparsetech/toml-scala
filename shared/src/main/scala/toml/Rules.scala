@@ -18,7 +18,7 @@ object Rules extends PlatformRules {
   val charsChunk = P(CharsWhile(UntilNewline))
   val comment    = P("#" ~ charsChunk.? ~ &(newLine | End))
 
-  val whitespace  = P(CharIn(WhitespaceChars))
+  val whitespace  = P(CharIn(WhitespaceChars.toList))
   val whitespaces = P(whitespace.rep(1))
 
   val skip = P(NoCut(NoTrace((whitespaces | comment | newLine).rep)))
@@ -41,7 +41,7 @@ object Rules extends PlatformRules {
   ))
 
   val basicStr: Parser[Value.Str] =
-    P("\"" ~/ (strChars | escape).rep.! ~ "\"")
+    P(DoubleQuote.toString ~/ (strChars | escape).rep.! ~ DoubleQuote.toString)
       .map(str => Value.Str(Unescape.unescapeJavaString(str)))
   val literalStr: Parser[Value.Str] =
     P(
@@ -86,10 +86,10 @@ object Rules extends PlatformRules {
   val `false` = P("false").map(_ => Value.Bool(false))
   val boolean = P(`true` | `false`)
 
-  val dashes = P(CharIn(Dashes))
+  val dashes = P(CharIn(Dashes.toList))
   val bareKey = P((letters | digits | dashes).rep(min = 1)).!
   val validKey: Parser[String] =
-    P(bareKey | NoCut(basicStr) | NoCut(literalStr)).!
+    P(NoCut(basicStr.map(_.value)) | NoCut(literalStr.map(_.value)) | bareKey)
   val pair: Parser[(String, Value)] =
     P(validKey ~ whitespaces.? ~ "=" ~ whitespaces.? ~ elem)
   val array: Parser[Value.Arr] =
@@ -109,15 +109,11 @@ object Rules extends PlatformRules {
   val pairNode: Parser[Node.Pair] = pair.map { case (k, v) => Node.Pair(k, v) }
   val table: Parser[Node.NamedTable] =
     P(skip ~ tableDef ~ skip ~ pair.rep(sep = skip)).map { case (a, b) =>
-      Node.NamedTable(
-        a.map(ParserUtil.cleanStr).toList,
-        b.toMap)
+      Node.NamedTable(a.toList, b.toMap)
     }
   val tableArray: Parser[Node.NamedArray] =
     P(skip ~ tableArrayDef ~ skip ~ pair.rep(sep = skip)).map { case (a, b) =>
-      Node.NamedArray(
-        a.map(ParserUtil.cleanStr).toList,
-        b.toMap)
+      Node.NamedArray(a.toList, b.toMap)
     }
 
   lazy val elem: Parser[Value] = P {

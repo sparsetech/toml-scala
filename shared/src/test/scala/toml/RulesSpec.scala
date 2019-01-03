@@ -82,6 +82,18 @@ class RulesSpec extends FunSuite with Matchers {
     testSuccess(example)
   }
 
+  test("Parse escaped table key identifier") {
+    val example =
+      """[a."tes\"t"]
+        |b = 42
+      """.stripMargin
+
+    assert(testSuccess(example) == Root(List(
+      Node.NamedTable(
+        List("a", "tes\"t"),
+        Map("b" -> Value.Num(42))))))
+  }
+
   test("Parse multi-line array with trailing commas") {
     val example =
       """
@@ -93,7 +105,7 @@ class RulesSpec extends FunSuite with Matchers {
     testSuccess(example)
   }
 
-  test("Fail to parse non-toml-compliant statement") {
+  test("Fail to parse non-TOML-compliant statement") {
     val example = "[error]   if you didn't catch this, your parser is broken"
     testFailure(example)
   }

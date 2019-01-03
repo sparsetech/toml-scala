@@ -1,22 +1,31 @@
 language: scala
 scala:
   - 2.11.11
-  - 2.12.4
+  - 2.12.8
 jdk:
   - oraclejdk8
 
-script:
-  sbt ++$TRAVIS_SCALA_VERSION tomlJS/test tomlJVM/test
+dist: trusty
+sudo: required
 
-# From http://www.scala-sbt.org/0.13/docs/Travis-CI-with-sbt.html
-# Use container-based infrastructure
-sudo: false
+addons:
+  apt:
+    update: true
+
 # These directories are cached to S3 at the end of the build
 cache:
   directories:
     - $HOME/.ivy2/cache
-    - $HOME/.sbt
+    - $HOME/.sbt/boot
+
+# From https://raw.githubusercontent.com/scalalandio/chimney/master/.travis.yml
+before_script:
+  - if [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]]; then curl https://raw.githubusercontent.com/scala-native/scala-native/master/scripts/travis_setup.sh | bash -x; fi
+
+script:
+  - if [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]]; then testNative=tomlNative/test; else testNative=""; fi && sbt ++$TRAVIS_SCALA_VERSION tomlJVM/test tomlJS/test $testNative
+
 before_cache:
-  # Cleanup the cached directories to avoid unnecessary cache updates
+  # Clean up the cached directories to avoid unnecessary cache updates
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
   - find $HOME/.sbt        -name "*.lock"               -print -delete

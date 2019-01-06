@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/sparsetech/toml-scala.svg)](https://travis-ci.org/sparsetech/toml-scala)
 [![Maven Central](https://img.shields.io/maven-central/v/tech.sparse/toml-scala_2.12.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22tech.sparse%22%20AND%20a%3A%22toml-scala_2.12%22)
 
-toml-scala is a feature-complete implementation of [TOML](https://github.com/toml-lang/toml) for the Scala platform. It can parse TOML content into an AST or map it onto `case class` hierarchies.
+toml-scala is a feature-complete implementation of [TOML](https://github.com/toml-lang/toml) for the Scala platform. It can parse TOML content into an AST or map it onto `case class` hierarchies. Furthermore, it can generate TOML back from an AST.
 
 ## Features
 - Standard-compliant
@@ -26,8 +26,8 @@ toml-scala is a feature-complete implementation of [TOML](https://github.com/tom
 
 ### Dependencies
 ```scala
-libraryDependencies += "tech.sparse" %%  "toml-scala" % "0.1.1"  // JVM
-libraryDependencies += "tech.sparse" %%% "toml-scala" % "0.1.1"  // JavaScript, LLVM
+libraryDependencies += "tech.sparse" %%  "toml-scala" % "0.2.0"  // JVM
+libraryDependencies += "tech.sparse" %%% "toml-scala" % "0.2.0"  // JavaScript, LLVM
 ```
 
 ## Examples
@@ -75,6 +75,14 @@ Toml.parseAs[Root](tableList)
 //   Point(1, 2, 3),
 //   Point(7, 8, 9),
 //   Point(2, 4, 8))))
+```
+
+Lists can be mapped onto `case class`es as a shorter alternative. Therefore, the following notation would yield the same result:
+
+```toml
+points = [ [ 1, 2, 3 ],
+           [ 7, 8, 9 ],
+           [ 2, 4, 8 ] ]
 ```
 
 #### Optional values

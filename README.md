@@ -97,14 +97,14 @@ Toml.parseAs[Root]("a = 1")  // Right(Root(1, None))
 ```scala
 case class Currency(name: String)
 implicit val currencyCodec: Codec[Currency] = Codec {
-  case (Value.Str(value), _) =>
+  case (Value.Str(value), _, _) =>
     value match {
       case "EUR" => Right(Currency("EUR"))
       case "BTC" => Right(Currency("BTC"))
-      case _     => Left((List.empty, s"Invalid currency: $value"))
+      case _     => Left((List(), s"Invalid currency: $value"))
     }
 
-  case (value, _) => Left((List.empty, s"Currency expected, $value provided"))
+  case (value, _, _) => Left((List(), s"Currency expected, $value provided"))
 }
 
 case class Root(currency: Currency)

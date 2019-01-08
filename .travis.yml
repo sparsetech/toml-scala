@@ -1,7 +1,7 @@
-language: scala
-scala:
-  - 2.11.11
-  - 2.12.8
+language: java
+env:
+  - TRAVIS_SCALA_VERSION=2.11.11
+  - TRAVIS_SCALA_VERSION=2.12.8
 jdk:
   - oraclejdk8
 
@@ -12,20 +12,18 @@ addons:
   apt:
     update: true
 
-# These directories are cached to S3 at the end of the build
+# Cache directory to S3 at the end of the build
 cache:
   directories:
-    - $HOME/.ivy2/cache
-    - $HOME/.sbt/boot
+    - $HOME/.cache/coursier
 
 # From https://raw.githubusercontent.com/scalalandio/chimney/master/.travis.yml
 before_script:
   - if [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]]; then curl https://raw.githubusercontent.com/scala-native/scala-native/master/scripts/travis_setup.sh | bash -x; fi
 
 script:
-  - if [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]]; then testNative=tomlNative/test; else testNative=""; fi && sbt ++$TRAVIS_SCALA_VERSION tomlJVM/test tomlJS/test $testNative
-
-before_cache:
-  # Clean up the cached directories to avoid unnecessary cache updates
-  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
-  - find $HOME/.sbt        -name "*.lock"               -print -delete
+  - set -x &&
+    if [[ "$TRAVIS_SCALA_VERSION" == 2.11.* ]]; then testNative=tomlNative/test; else testNative=""; fi &&
+    curl -o csbt https://raw.githubusercontent.com/coursier/sbt-launcher/master/csbt &&
+    chmod +x csbt &&
+    ./csbt --add-coursier=true ++$TRAVIS_SCALA_VERSION tomlJVM/test tomlJS/test $testNative

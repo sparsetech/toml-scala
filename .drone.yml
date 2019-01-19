@@ -2,7 +2,7 @@ kind: pipeline
 name: default
 steps:
   - name: build
-    image: tindzk/seed:latest
+    image: tindzk/seed:0.1.1
     pull: always
     commands:
       - blp-server &

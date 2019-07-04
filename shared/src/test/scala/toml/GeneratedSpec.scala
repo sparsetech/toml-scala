@@ -2,8 +2,8 @@ package toml
 
 import org.scalatest.prop._
 import org.scalatest.{Matchers, PropSpec}
-import fastparse.all._
-import fastparse.core.Parsed.{Failure, Success}
+import scala.meta.internal.fastparse.all._
+import scala.meta.internal.fastparse.core.Parsed.{Failure, Success}
 
 import scala.util.Try
 

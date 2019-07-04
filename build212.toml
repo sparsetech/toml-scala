@@ -1,7 +1,7 @@
 [project]
 scalaVersion       = "2.12.8"
-scalaJsVersion     = "0.6.26"
-scalaNativeVersion = "0.3.8"
+scalaJsVersion     = "0.6.28"
+scalaNativeVersion = "0.3.9"
 scalaOptions       = [
   "-encoding", "UTF-8",
   "-unchecked",
@@ -21,7 +21,7 @@ root    = "shared"
 sources = ["shared/src/main/scala"]
 targets = ["js", "jvm", "native"]
 scalaDeps = [
-  ["com.lihaoyi", "fastparse", "1.0.0"],
+  ["org.scalameta", "fastparse", "1.0.1"],
   ["com.chuusai", "shapeless", "2.3.3"]
 ]
 
@@ -32,7 +32,7 @@ sources = ["jvm/src/main/scala"]
 [module.toml.test.jvm]
 sources = ["shared/src/test/scala", "jvm/src/test/scala"]
 scalaDeps = [
-  ["org.scalatest" , "scalatest" , "3.0.5" ],
+  ["org.scalatest" , "scalatest" , "3.0.8" ],
   ["org.scalacheck", "scalacheck", "1.14.0"]
 ]
 
@@ -43,7 +43,7 @@ sources = ["js/src/main/scala"]
 [module.toml.test.js]
 sources = ["shared/src/test/scala"]
 scalaDeps = [
-  ["org.scalatest" , "scalatest" , "3.0.5" ],
+  ["org.scalatest" , "scalatest" , "3.0.8" ],
   ["org.scalacheck", "scalacheck", "1.14.0"]
 ]
 

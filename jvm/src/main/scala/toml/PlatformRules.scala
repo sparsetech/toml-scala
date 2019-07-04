@@ -2,7 +2,7 @@ package toml
 
 import java.time._
 
-import fastparse.all._
+import scala.meta.internal.fastparse.all._
 
 trait PlatformRules { this: Rules.type =>
   private val TenPowers =

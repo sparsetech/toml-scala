@@ -1,6 +1,6 @@
 package toml
 
-import fastparse.all._
+import scala.meta.internal.fastparse.all._
 
 private[toml] case class NamedFunction[T, V](f: T => V, name: String)
   extends (T => V)
@@ -100,7 +100,7 @@ object Rules extends PlatformRules {
       .map(p => Value.Tbl(p.toMap))
 
   val tableIds: Parser[Seq[String]] =
-    P(validKey.rep(min = 1, sep = whitespaces.? ~ "." ~ whitespaces.?))
+    P(validKey.rep(min = 1, sep = whitespaces.? ~ "." ~ whitespaces.?).map(_.toSeq))
   val tableDef: Parser[Seq[String]] =
     P("[" ~ whitespaces.? ~ tableIds ~ whitespaces.? ~ "]")
   val tableArrayDef: Parser[Seq[String]] =

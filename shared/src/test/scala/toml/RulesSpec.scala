@@ -1,7 +1,7 @@
 package toml
 
 import org.scalatest.{FunSuite, Matchers}
-import fastparse.core.Parsed._
+import scala.meta.internal.fastparse.core.Parsed._
 
 class RulesSpec extends FunSuite with Matchers {
   import TestHelpers._

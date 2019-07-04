@@ -2,13 +2,18 @@ kind: pipeline
 name: default
 steps:
   - name: build
-    image: tindzk/seed:0.1.1
+    image: tindzk/seed:0.1.4
     pull: always
     commands:
       - blp-server &
       - seed --build=build211.toml bloop
       - bloop compile toml-native-test
       - bloop test toml-js toml-jvm
+      - sleep 5
       - rm -rf .bloop build
       - seed --build=build212.toml bloop
+      - bloop test toml-js toml-jvm
+      - sleep 5
+      - rm -rf .bloop build
+      - seed --build=build213.toml bloop
       - bloop test toml-js toml-jvm

@@ -4,7 +4,7 @@ import java.time._
 import java.io.File
 
 import org.scalatest.{FunSuite, Matchers}
-import fastparse.core.Parsed._
+import scala.meta.internal.fastparse.core.Parsed._
 
 class FileSpec extends FunSuite with Matchers {
   import TestHelpers._

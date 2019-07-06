@@ -21,9 +21,9 @@ object Generators {
     def invalidStrGen: Gen[String] = for {
       s <- Gen.alphaStr
       f <- Gen.oneOf(
-        SingleQuote + s,
+        s"$SingleQuote$s",
         s + SingleQuote,
-        DoubleQuote + s,
+        s"$DoubleQuote$s",
         s + DoubleQuote
       )
     } yield f

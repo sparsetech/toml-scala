@@ -3,7 +3,7 @@ package toml
 import java.time._
 
 import org.scalatest.{FunSuite, Matchers}
-import fastparse.core.Parsed._
+import scala.meta.internal.fastparse.core.Parsed._
 
 class DateSpec extends FunSuite with Matchers {
   import TestHelpers._

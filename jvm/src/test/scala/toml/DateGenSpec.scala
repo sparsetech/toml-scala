@@ -2,11 +2,12 @@ package toml
 
 import org.scalatest.prop._
 import org.scalatest.{Matchers, PropSpec}
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-import fastparse.all._
-import fastparse.core.Parsed.{Failure, Success}
+import scala.meta.internal.fastparse.all._
+import scala.meta.internal.fastparse.core.Parsed.{Failure, Success}
 
-class DateGenSpec extends PropSpec with PropertyChecks with Matchers {
+class DateGenSpec extends PropSpec with ScalaCheckPropertyChecks with Matchers {
   import TestHelpers._
 
   property("parse dates following the RFC 3339 spec (`date` parser)") {

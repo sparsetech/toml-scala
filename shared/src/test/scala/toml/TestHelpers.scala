@@ -1,7 +1,7 @@
 package toml
 
-import fastparse.all._
-import fastparse.core.Parsed._
+import scala.meta.internal.fastparse.all._
+import scala.meta.internal.fastparse.core.Parsed._
 
 import org.scalatest.Matchers
 

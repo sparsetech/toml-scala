@@ -2,7 +2,7 @@ package toml
 
 import shapeless._
 
-import fastparse.core.Parsed._
+import scala.meta.internal.fastparse.core.Parsed._
 
 object Toml {
   def parse(toml: String): Either[String, Value.Tbl] =

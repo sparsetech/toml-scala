@@ -33,14 +33,10 @@ object Generate {
     case Node.Pair(k, v) => k + " = " + generate(v)
     case Node.NamedTable(ref, values) =>
       "[" + generateRef(ref) + "]\n" +
-      values.mapValues(generate(_)).map { case (k, v) =>
-        k + " = " + v
-      }.mkString("\n")
+      values.map { case (k, v) => k + " = " + generate(v) }.mkString("\n")
     case Node.NamedArray(ref, values) =>
       "[[" + generateRef(ref) + "]]\n" +
-       values.mapValues(generate(_)).map { case (k, v) =>
-         k + " = " + v
-       }.mkString("\n")
+       values.map { case (k, v) => k + " = " + generate(v) }.mkString("\n")
   }
 
   def generate(root: Root): String =

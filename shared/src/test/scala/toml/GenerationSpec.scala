@@ -1,7 +1,7 @@
 package toml
 
-import Value._
 import Node._
+import Value._
 
 import org.scalatest.FunSuite
 
@@ -10,7 +10,7 @@ class GenerationSpec extends FunSuite {
     val generated = Toml.generate(root)
     val parsed = Toml.parse(generated)
 
-    assert(parsed == Right(Embed.root(root)))
+    assert(parsed == Embed.root(root))
     assert(generated == expected)
   }
 
@@ -34,7 +34,7 @@ class GenerationSpec extends FunSuite {
   }
 
   test("Table") {
-    val root = Root(List(NamedTable(List("table"), Map("a" -> Num(1)))))
+    val root = Root(List(NamedTable(List("table"), List("a" -> Num(1)))))
 
     val table =
       """
@@ -46,7 +46,7 @@ class GenerationSpec extends FunSuite {
   }
 
   test("Escape table reference") {
-    val root = Root(List(NamedTable(List("a", "b 2"), Map("a" -> Num(1)))))
+    val root = Root(List(NamedTable(List("a", "b 2"), List("a" -> Num(1)))))
 
     val table =
       """
@@ -58,7 +58,7 @@ class GenerationSpec extends FunSuite {
   }
 
   test("Escape table reference (2)") {
-    val root = Root(List(NamedTable(List("a", "b\"c"), Map("a" -> Num(1)))))
+    val root = Root(List(NamedTable(List("a", "b\"c"), List("a" -> Num(1)))))
 
     val table =
       """
@@ -70,7 +70,7 @@ class GenerationSpec extends FunSuite {
   }
 
   test("Escape table reference (3)") {
-    val root = Root(List(NamedTable(List("a", "b.c"), Map("a" -> Num(1)))))
+    val root = Root(List(NamedTable(List("a", "b.c"), List("a" -> Num(1)))))
 
     val table =
       """
@@ -85,7 +85,7 @@ class GenerationSpec extends FunSuite {
     val root = Root(List(
       Pair("a", Num(1)),
       NamedTable(
-        List("table"), Map("b" -> Num(2)))))
+        List("table"), List("b" -> Num(2)))))
 
     val table =
       """
@@ -101,8 +101,8 @@ class GenerationSpec extends FunSuite {
   test("Two tables") {
     val root = Root(List(
       Pair("a", Num(1)),
-      NamedTable(List("table"), Map("b" -> Num(2))),
-      NamedTable(List("table2"), Map("c" -> Num(3)))))
+      NamedTable(List("table"), List("b" -> Num(2))),
+      NamedTable(List("table2"), List("c" -> Num(3)))))
 
     val table =
       """
@@ -120,7 +120,7 @@ class GenerationSpec extends FunSuite {
 
   test("Nested table") {
     val root = Root(List(
-      NamedTable(List("table", "table2"), Map("value" -> Num(42)))))
+      NamedTable(List("table", "table2"), List("value" -> Num(42)))))
 
     val table =
       """

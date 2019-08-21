@@ -72,15 +72,27 @@ object Rules extends PlatformRules {
 
   def rmUnderscore(s: String) = s.replace("_", "")
 
-  val +- = P(CharIn(List('+', '-')))
+  val sign = P(CharIn("+-"))
   val integral = P(digits.rep(min = 1, sep = "_"))
   val fractional = P("." ~ integral)
-  val exponent = P(CharIn("eE") ~ +-.? ~ integral)
+  val exponent = P(CharIn("eE") ~ sign.? ~ integral)
   val integer: Parser[Value.Num] =
-    P(+-.? ~ integral).!.map(s => Value.Num(rmUnderscore(s).toLong))
+    P(sign.? ~ integral).!.map(s => Value.Num(rmUnderscore(s).toLong))
   val double: Parser[Value.Real] =
-    P(+-.? ~ integral ~ (fractional | exponent)).!.map(s =>
-      Value.Real(rmUnderscore(s).toDouble))
+    P(
+      sign.?.! ~
+      (
+        P("inf").map(_ => Double.PositiveInfinity) |
+        P("nan").map(_ => Double.NaN)              |
+        P(integral ~ (
+          (fractional ~ exponent) |
+          fractional              |
+          exponent
+        )).!.map(s => rmUnderscore(s).toDouble)
+      )
+    ).map { case (sign, value) =>
+      if (sign == "-") Value.Real(-value) else Value.Real(value)
+    }
 
   val `true`  = P("true") .map(_ => Value.Bool(true))
   val `false` = P("false").map(_ => Value.Bool(false))

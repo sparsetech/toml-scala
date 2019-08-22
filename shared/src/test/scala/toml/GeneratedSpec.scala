@@ -63,10 +63,10 @@ class GeneratedSpec extends PropSpec with PropertyChecks with Matchers {
     }
   }
 
-  property("Parse pairs (with `node` parser)") {
+  property("Parse pairs (with `root` parser)") {
     import Generators.Tables._
     forAll(pairGen) { s: String =>
-      shouldBeSuccess(Rules.node.parse(s))
+      shouldBeSuccess(Rules.root.parse(s))
     }
   }
 
@@ -80,14 +80,14 @@ class GeneratedSpec extends PropSpec with PropertyChecks with Matchers {
   property("Parse tables") {
     import Generators.Tables._
     forAll(tableGen) { s: String =>
-      shouldBeSuccess[Node.NamedTable](Rules.table.parse(s))
+      shouldBeSuccess[Node.NamedTable]((Rules.skip ~ Rules.table).parse(s))
     }
   }
 
-  property("Parse tables (with `node` parser)") {
+  property("Parse tables (with `root` parser)") {
     import Generators.Tables._
     forAll(tableGen) { s: String =>
-      shouldBeSuccess(Rules.node.parse(s))
+      shouldBeSuccess(Rules.root.parse(s))
     }
   }
 }

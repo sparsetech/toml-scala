@@ -133,6 +133,20 @@ scalaDeps = [
 ]
 ```
 
+#### Language Extensions
+toml-scala supports the following language extensions which are disabled by default:
+
+* [New lines and trailing commas in inline tables](https://github.com/toml-lang/toml/issues/516)
+
+To enable them, pass in a set of extensions to the `parse()` or `parseAs()` function as a second argument:
+
+```scala
+toml.Toml.parse("""key = {
+  a = 23,
+  b = 42,
+}""", Set(toml.Extension.MultiLineInlineTables))
+```
+
 ## Links
 * [ScalaDoc](https://www.javadoc.io/doc/tech.sparse/toml-scala_2.12/)
 

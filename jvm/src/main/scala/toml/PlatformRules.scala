@@ -4,7 +4,7 @@ import java.time._
 
 import scala.meta.internal.fastparse.all._
 
-trait PlatformRules { this: Rules.type =>
+trait PlatformRules { this: Rules =>
   private val TenPowers =
     List(1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000)
 

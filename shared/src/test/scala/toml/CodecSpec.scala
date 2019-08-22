@@ -62,7 +62,7 @@ class CodecSpec extends FunSuite {
     case class Pair(a: Int)
 
     val pair = """a = 1"""
-    assert(Toml.parseAs[Pair](pair) == Right(Pair(1)))
+    assert(Toml.parseAs[Pair](pair, Set()) == Right(Pair(1)))
 
     case class Pairs(a: Int, b: Int)
     val pairs =

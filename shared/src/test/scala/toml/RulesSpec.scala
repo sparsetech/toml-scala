@@ -63,7 +63,41 @@ class RulesSpec extends FunSuite with Matchers {
     testSuccess(example)
   }
 
-  test("Parse inline tables") {
+  test("Parse inline tables (1)") {
+    val example =
+      """
+        |a = { name = "value", name2 = "value2" }
+        |b = { name = "value" }
+      """.stripMargin
+
+    testSuccess(example)
+  }
+
+  test("Extension: Parse inline tables with new line") {
+    // See https://github.com/toml-lang/toml/issues/516
+    val example =
+      """
+        |a = { name = "value", name2 = "value2" }
+        |b = { name = "value"
+        |    }
+      """.stripMargin
+
+    testFailure(example)
+    testSuccess(example, new Rules(Set(Extension.MultiLineInlineTables)))
+  }
+
+  test("Extension: Parse inline tables with trailing comma") {
+    val example =
+      """
+        |a = { name = "value", name2 = "value2" }
+        |b = { name = "value", }
+      """.stripMargin
+
+    testFailure(example)
+    testSuccess(example, new Rules(Set(Extension.MultiLineInlineTables)))
+  }
+
+  test("Extension: Parse inline tables with trailing comma and comment") {
     val example =
       """
         |a = { name = "value", name2 = "value2" }
@@ -71,7 +105,9 @@ class RulesSpec extends FunSuite with Matchers {
         |      # Trailing comma
         |    }
       """.stripMargin
-    testSuccess(example)
+
+    testFailure(example)
+    testSuccess(example, new Rules(Set(Extension.MultiLineInlineTables)))
   }
 
   test("Parse complex table keys") {

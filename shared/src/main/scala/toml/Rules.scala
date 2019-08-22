@@ -9,26 +9,31 @@ private[toml] case class NamedFunction[T, V](f: T => V, name: String)
   override def toString: String = name
 }
 
-object Rules extends PlatformRules {
+sealed trait Extension
+object Extension {
+  case object MultiLineInlineTables extends Extension
+}
+
+case object Rules extends toml.Rules(Set())
+
+class Rules(extensions: Set[Extension]) extends PlatformRules {
   import Constants._
+  import Extension._
 
   val UntilNewline = NamedFunction(!CrLf.contains(_: Char), "UntilNewline")
 
   val newLine    = P(StringIn(CrLf, Lf))
   val charsChunk = P(CharsWhile(UntilNewline))
   val comment    = P("#" ~ charsChunk.? ~ &(newLine | End))
+  val whitespace = P(CharIn(WhitespaceChars.toList))
 
-  val whitespace  = P(CharIn(WhitespaceChars.toList))
-  val whitespaces = P(whitespace.rep(1))
+  val skip   = P(NoCut(NoTrace((whitespace | comment | newLine).rep)))
+  val skipWs = P(NoCut(NoTrace(whitespace.rep)))
 
-  val skip = P(NoCut(NoTrace((whitespaces | comment | newLine).rep)))
-
-  val letter  = P(CharIn(LettersRange))
-  val letters = P(letter.rep(1))
-  val digit   = P(CharIn(NumbersRange))
-  val digits  = P(digit.rep(1))
-
-  val skipSpaces = P(CharsWhile(_.isWhitespace).?)
+  val letter = P(CharIn(LettersRange))
+  val digit  = P(CharIn(NumbersRange))
+  val digits = P(digit.rep(1))
+  val dash   = P(CharIn(Dashes.toList))
 
   val StringChars = NamedFunction(!"\"\\".contains(_: Char), "StringChars")
   val strChars    = P(CharsWhile(StringChars))
@@ -52,14 +57,14 @@ object Rules extends PlatformRules {
   val multiLineBasicStr: Parser[Value.Str] =
     P(
       MultiLineDoubleQuote ~/
-      skipSpaces ~
+      newLine.? ~
       (!MultiLineDoubleQuote ~ AnyChar).rep.! ~
       MultiLineDoubleQuote
     ).map(str => Value.Str(Unescape.unescapeJavaString(str)))
   val multiLineLiteralStr: Parser[Value.Str] =
     P(
       MultiLineSingleQuote ~/
-      skipSpaces ~
+      newLine.? ~
       (!MultiLineSingleQuote ~ AnyChar).rep.! ~
       MultiLineSingleQuote
     ).map(Value.Str)
@@ -98,44 +103,42 @@ object Rules extends PlatformRules {
   val `false` = P("false").map(_ => Value.Bool(false))
   val boolean = P(`true` | `false`)
 
-  val dashes = P(CharIn(Dashes.toList))
-  val bareKey = P((letters | digits | dashes).rep(min = 1)).!
+  val bareKey = P((letter | digit | dash).rep(min = 1)).!
   val validKey: Parser[String] =
     P(NoCut(basicStr.map(_.value)) | NoCut(literalStr.map(_.value)) | bareKey)
   val pair: Parser[(String, Value)] =
-    P(validKey ~ whitespaces.? ~ "=" ~ whitespaces.? ~ elem)
+    P(validKey ~ skipWs ~ "=" ~ skipWs ~ elem)
   val array: Parser[Value.Arr] =
     P("[" ~ skip ~ elem.rep(sep = "," ~ skip) ~ ",".? ~ skip ~ "]")
       .map(l => Value.Arr(l.toList))
   val inlineTable: Parser[Value.Tbl] =
-    P("{" ~ skip ~ pair.rep(sep = "," ~ skip) ~ ",".? ~ skip ~ "}")
-      .map(p => Value.Tbl(p.toMap))
+    (if (extensions.contains(MultiLineInlineTables))
+      P("{" ~ skip ~ pair.rep(sep = "," ~ skip) ~ ",".? ~ skip ~ "}")
+     else
+      P("{" ~ skipWs ~ pair.rep(sep = "," ~ skipWs) ~ skipWs ~ "}")
+    ).map(p => Value.Tbl(p.toMap))
 
   val tableIds: Parser[Seq[String]] =
-    P(validKey.rep(min = 1, sep = whitespaces.? ~ "." ~ whitespaces.?).map(_.toSeq))
+    P(validKey.rep(min = 1, sep = skipWs ~ "." ~ skipWs).map(_.toSeq))
   val tableDef: Parser[Seq[String]] =
-    P("[" ~ whitespaces.? ~ tableIds ~ whitespaces.? ~ "]")
+    P("[" ~ skipWs ~ tableIds ~ skipWs ~ "]")
   val tableArrayDef: Parser[Seq[String]] =
-    P("[[" ~ whitespaces.? ~ tableIds ~ whitespaces.? ~ "]]")
+    P("[[" ~ skipWs ~ tableIds ~ skipWs ~ "]]")
 
   val pairNode: Parser[Node.Pair] = pair.map { case (k, v) => Node.Pair(k, v) }
   val table: Parser[Node.NamedTable] =
-    P(skip ~ tableDef ~ skip ~ pair.rep(sep = skip)).map { case (a, b) =>
+    P(tableDef ~ skip ~ pair.rep(sep = skip)).map { case (a, b) =>
       Node.NamedTable(a.toList, b.toList)
     }
   val tableArray: Parser[Node.NamedArray] =
-    P(skip ~ tableArrayDef ~ skip ~ pair.rep(sep = skip)).map { case (a, b) =>
+    P(tableArrayDef ~ skip ~ pair.rep(sep = skip)).map { case (a, b) =>
       Node.NamedArray(a.toList, b.toList)
     }
 
-  lazy val elem: Parser[Value] = P {
-    skip ~
-    (date | string | boolean | double | integer | array | inlineTable) ~
-    skip
-  }
+  lazy val elem: Parser[Value] =
+    P(date | string | boolean | double | integer | array | inlineTable)
 
-  lazy val node: Parser[Node] = P(skip ~ (pairNode | table | tableArray))
-
-  val root: Parser[Root] = P(node.rep(sep = skip) ~ skip ~ End)
+  val node: Parser[Node] = P(pairNode | table | tableArray)
+  val root: Parser[Root] = P(skip ~ node.rep(sep = skip) ~ skip ~ End)
     .map(nodes => Root(nodes.toList))
 }

@@ -8,7 +8,7 @@ class EmbedSpec extends FunSuite {
   test("One pair") {
     val pair = """a = 1"""
     val node = Rules.root.parse(pair).get.value
-    assert(Embed.root(node) == Tbl(Map("a" -> Num(1))))
+    assert(Embed.root(node) == Right(Tbl(Map("a" -> Num(1)))))
   }
 
   test("Two pairs") {
@@ -17,8 +17,8 @@ class EmbedSpec extends FunSuite {
         |a = 1
       """.stripMargin
     val node2 = Rules.root.parse(pairs).get.value
-    assert(Embed.root(node2) == Tbl(Map(
-      "a" -> Num(1), "b" -> Num(2))))
+    assert(Embed.root(node2) == Right(Tbl(Map(
+      "a" -> Num(1), "b" -> Num(2)))))
   }
 
   test("Simple table") {
@@ -29,7 +29,7 @@ class EmbedSpec extends FunSuite {
       """.stripMargin
     val node = Rules.root.parse(table).get.value
     assert(Embed.root(node) ==
-      Tbl(Map("table" -> Tbl(Map("a" -> Num(1))))))
+      Right(Tbl(Map("table" -> Tbl(Map("a" -> Num(1)))))))
   }
 
   test("Pair and table") {
@@ -41,7 +41,7 @@ class EmbedSpec extends FunSuite {
       """.stripMargin
     val node = Rules.root.parse(table).get.value
     assert(Embed.root(node) ==
-      Tbl(Map("a" -> Num(1), "table" -> Tbl(Map("b" -> Num(2))))))
+      Right(Tbl(Map("a" -> Num(1), "table" -> Tbl(Map("b" -> Num(2)))))))
   }
 
   test("Nested table") {
@@ -52,9 +52,9 @@ class EmbedSpec extends FunSuite {
       """.stripMargin
     val node = Rules.root.parse(table).get.value
     assert(Embed.root(node) ==
-      Tbl(Map("table" ->
+      Right(Tbl(Map("table" ->
         Tbl(Map("table2" ->
-          Tbl(Map("value" -> Num(42))))))))
+          Tbl(Map("value" -> Num(42)))))))))
   }
 
   test("Two nested tables") {
@@ -67,10 +67,10 @@ class EmbedSpec extends FunSuite {
       """.stripMargin
     val node = Rules.root.parse(table).get.value
     assert(Embed.root(node) ==
-      Tbl(Map(
+      Right(Tbl(Map(
         "table" -> Tbl(Map(
           "table2" -> Tbl(Map("value" -> Num(23))),
-          "table3" -> Tbl(Map("value" -> Num(42))))))))
+          "table3" -> Tbl(Map("value" -> Num(42)))))))))
   }
 
   test("Empty nested tables") {
@@ -82,10 +82,10 @@ class EmbedSpec extends FunSuite {
       """.stripMargin
     val node = Rules.root.parse(table).get.value
     assert(Embed.root(node) ==
-      Tbl(Map(
+      Right(Tbl(Map(
         "table" -> Tbl(Map(
           "table2" -> Tbl(Map.empty),
-          "table3" -> Tbl(Map("value" -> Num(42))))))))
+          "table3" -> Tbl(Map("value" -> Num(42)))))))))
   }
 
 
@@ -98,11 +98,11 @@ class EmbedSpec extends FunSuite {
       """.stripMargin
     val node = Rules.root.parse(tableList).get.value
     assert(Embed.root(node) ==
-      Tbl(Map(
+      Right(Tbl(Map(
         "points" -> Arr(List(
           Tbl(Map("x" -> Num(1), "y" -> Num(2), "z" -> Num(3))),
           Tbl(Map("x" -> Num(7), "y" -> Num(8), "z" -> Num(9))),
-          Tbl(Map("x" -> Num(2), "y" -> Num(4), "z" -> Num(8))))))))
+          Tbl(Map("x" -> Num(2), "y" -> Num(4), "z" -> Num(8)))))))))
   }
 
   test("Array") {
@@ -120,11 +120,11 @@ class EmbedSpec extends FunSuite {
       """.stripMargin
 
     val node = Rules.root.parse(array).get.value
-    assert(Embed.root(node) == Tbl(Map(
+    assert(Embed.root(node) == Right(Tbl(Map(
       "products" -> Arr(List(
         Tbl(Map("name" -> Str("Hammer"), "sku" -> Num(738594937), "colour" -> Str("blue"))),
         Tbl(Map("name" -> Str("Nail")  , "sku" -> Num(284758393), "colour" -> Str("grey")))
-      )))))
+      ))))))
   }
 
   test("Array with empty items") {
@@ -143,12 +143,12 @@ class EmbedSpec extends FunSuite {
       """.stripMargin
 
     val node = Rules.root.parse(array).get.value
-    assert(Embed.root(node) == Tbl(Map(
+    assert(Embed.root(node) == Right(Tbl(Map(
       "products" -> Arr(List(
         Tbl(Map("name" -> Str("Hammer"), "sku" -> Num(738594937))),
         Tbl(Map.empty),
         Tbl(Map("name" -> Str("Nail"), "sku" -> Num(284758393), "colour" -> Str("grey")))
-      )))))
+      ))))))
   }
 
   test("Nested array") {
@@ -175,7 +175,7 @@ class EmbedSpec extends FunSuite {
       """.stripMargin
 
     val node = Rules.root.parse(array).get.value
-    assert(Embed.root(node) == Tbl(Map(
+    assert(Embed.root(node) == Right(Tbl(Map(
       "fruit" -> Arr(List(
         Tbl(Map(
           "name" -> Str("apple"),
@@ -195,6 +195,6 @@ class EmbedSpec extends FunSuite {
           ))
         ))
       ))
-    )))
+    ))))
   }
 }

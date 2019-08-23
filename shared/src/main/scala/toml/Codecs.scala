@@ -9,25 +9,21 @@ import scala.annotation.implicitNotFound
 trait Codec[A] {
   def apply(
     value:    Value,
-    defaults: Map[String, Any],
+    defaults: Codec.Defaults,
     index:    Int
-  ): Either[Codec.Error, A]
+  ): Either[Parse.Error, A]
 }
 
 object Codec {
-  type Field    = String
-  type Address  = List[Field]
-  type Message  = String
-  type Error    = (Address, Message)
   type Defaults = Map[String, Any]
   type Index    = Int
 
   def apply[T](
-    f: (Value, Defaults, Index) => Either[Error, T]
+    f: (Value, Defaults, Index) => Either[Parse.Error, T]
   ): Codec[T] = new Codec[T] {
     override def apply(
       value: Value, defaults: Defaults, index: Index
-    ): Either[Error, T] = f(value, defaults, index)
+    ): Either[Parse.Error, T] = f(value, defaults, index)
   }
 }
 
@@ -45,7 +41,7 @@ trait LowPriorityCodecs {
     def f(
       head:     Option[Value],
       tail:     Value,
-      mapError: Codec.Error => Codec.Error,
+      mapError: Parse.Error => Parse.Error,
       default:  Option[V],
       defaults: Codec.Defaults,
       index:    Codec.Index
@@ -96,7 +92,7 @@ trait LowPriorityCodecs {
     def f(
       head:     Value,
       tail:     Value,
-      mapError: (Codec.Error, Codec.Index) => Codec.Error,
+      mapError: (Parse.Error, Codec.Index) => Parse.Error,
       defaults: Codec.Defaults,
       index:    Codec.Index
     ) =
@@ -171,7 +167,7 @@ object Codecs extends LowPriorityCodecs with PlatformCodecs {
 
   implicit def listCodec[T](implicit codec: Codec[T]): Codec[List[T]] = Codec {
     case (Value.Arr(elems), _, _) =>
-      elems.zipWithIndex.foldLeft(Right(List.empty): Either[Codec.Error, List[T]]) {
+      elems.zipWithIndex.foldLeft(Right(List.empty): Either[Parse.Error, List[T]]) {
         case (Right(acc), (cur, idx)) =>
           codec(cur, Map.empty, 0)
             .left.map { case (a, m) => (s"#${idx + 1}" +: a, m) }
@@ -186,7 +182,7 @@ object Codecs extends LowPriorityCodecs with PlatformCodecs {
   implicit def tableCodec[T](implicit codec: Codec[T]): Codec[Map[String, T]] =
     Codec {
       case (Value.Tbl(value), _, _) =>
-        value.foldLeft(Right(Map.empty): Either[Codec.Error, Map[String, T]]) {
+        value.foldLeft(Right(Map.empty): Either[Parse.Error, Map[String, T]]) {
           case (Left(l), _) => Left(l)
           case (Right(r), (k, v)) =>
             codec(v, Map.empty, 0) match {

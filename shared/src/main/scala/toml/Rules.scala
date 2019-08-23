@@ -121,11 +121,11 @@ object Rules extends PlatformRules {
   val pairNode: Parser[Node.Pair] = pair.map { case (k, v) => Node.Pair(k, v) }
   val table: Parser[Node.NamedTable] =
     P(skip ~ tableDef ~ skip ~ pair.rep(sep = skip)).map { case (a, b) =>
-      Node.NamedTable(a.toList, b.toMap)
+      Node.NamedTable(a.toList, b.toList)
     }
   val tableArray: Parser[Node.NamedArray] =
     P(skip ~ tableArrayDef ~ skip ~ pair.rep(sep = skip)).map { case (a, b) =>
-      Node.NamedArray(a.toList, b.toMap)
+      Node.NamedArray(a.toList, b.toList)
     }
 
   lazy val elem: Parser[Value] = P {

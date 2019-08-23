@@ -20,7 +20,7 @@ class RulesSpec extends FunSuite with Matchers {
   test("Strings in table headers") {
     assert(
       testSuccess("[ j . \"ʞ\" . 'l' ]") ==
-      Root(List(Node.NamedTable(List("j", "ʞ", "l"), Map.empty))))
+      Root(List(Node.NamedTable(List("j", "ʞ", "l"), List()))))
   }
 
   test("Parse quoted strings") {
@@ -91,7 +91,7 @@ class RulesSpec extends FunSuite with Matchers {
     assert(testSuccess(example) == Root(List(
       Node.NamedTable(
         List("a", "tes\"t"),
-        Map("b" -> Value.Num(42))))))
+        List("b" -> Value.Num(42))))))
   }
 
   test("Parse multi-line array with trailing commas") {

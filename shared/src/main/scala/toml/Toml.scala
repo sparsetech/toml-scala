@@ -5,8 +5,8 @@ import shapeless._
 import scala.meta.internal.fastparse.core.Parsed._
 
 object Toml {
-  def parse(toml: String): Either[Parse.Error, Value.Tbl] =
-    Rules.root.parse(toml) match {
+  def parse(toml: String, extensions: Set[Extension] = Set()): Either[Parse.Error, Value.Tbl] =
+    new Rules(extensions).root.parse(toml) match {
       case Success(v, _)    => Embed.root(v)
       case f: Failure[_, _] => Left(List() -> f.msg)
     }
@@ -24,23 +24,37 @@ object Toml {
       codec(table, d, 0).right.map(generic.from)
     }
 
-    def apply[D <: HList, R <: HList](toml: String)(implicit
+    def apply[D <: HList, R <: HList](
+      toml      : String,
+      extensions: Set[Extension]
+    )(implicit
       generic      : LabelledGeneric.Aux[A, R],
       defaults     : Default.AsRecord.Aux[A, D],
       defaultMapper: util.RecordToMap[D],
       codec        : Codec[R]
     ): Either[Parse.Error, A] = {
       val d = defaultMapper(defaults())
-      parse(toml).right.flatMap(codec(_, d, 0).right.map(generic.from))
+      parse(toml, extensions)
+        .right
+        .flatMap(codec(_, d, 0).right.map(generic.from))
     }
+
+    def apply[D <: HList, R <: HList](toml: String)(
+      implicit
+        generic      : LabelledGeneric.Aux[A, R],
+        defaults     : Default.AsRecord.Aux[A, D],
+        defaultMapper: util.RecordToMap[D],
+        codec        : Codec[R]
+    ): Either[Parse.Error, A] = apply(toml, Set())
   }
 
   class CodecHelperValue[A] {
     def apply(value: Value)(implicit codec: Codec[A]): Either[Parse.Error, A] =
       codec(value, Map(), 0)
 
-    def apply(toml: String)(implicit codec: Codec[A]): Either[Parse.Error, A] =
-      parse(toml).right.flatMap(codec(_, Map(), 0))
+    def apply(toml: String, extensions: Set[Extension] = Set())
+             (implicit codec: Codec[A]): Either[Parse.Error, A] =
+      parse(toml, extensions).right.flatMap(codec(_, Map(), 0))
   }
 
   def parseAs     [T]: CodecHelperGeneric[T] = new CodecHelperGeneric[T]

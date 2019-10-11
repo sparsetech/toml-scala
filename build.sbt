@@ -2,11 +2,11 @@
 import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 val Scala2_11  = "2.11.12"
-val Scala2_12  = "2.12.8"
-val Scala2_13  = "2.13.0"
+val Scala2_12  = "2.12.10"
+val Scala2_13  = "2.13.1"
 val FastParse  = "1.0.1"
 val Shapeless  = "2.3.3"
-val ScalaCheck = "1.14.0"
+val ScalaCheck = "1.14.2"
 val ScalaTest  = "3.0.8"
 val ScalaTestNative = "3.2.0-SNAP10"
 

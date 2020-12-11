@@ -110,6 +110,12 @@ class RulesSpec extends FunSuite with Matchers {
     testSuccess(example, new Rules(Set(Extension.MultiLineInlineTables)))
   }
 
+  test("Parse list with spaces or tabs before commas") {
+    val tab = "\t"
+    val example = s"""dep = ["tech.sparse"   , "toml-scala"$tab, "0.2.2"]"""
+    testSuccess(example)
+  }
+
   test("Parse complex table keys") {
     val example =
       """[asdf."bit#"]

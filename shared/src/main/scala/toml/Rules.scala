@@ -109,13 +109,13 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
   val pair: Parser[(String, Value)] =
     P(validKey ~ skipWs ~ "=" ~ skipWs ~ elem)
   val array: Parser[Value.Arr] =
-    P("[" ~ skip ~ elem.rep(sep = "," ~ skip) ~ ",".? ~ skip ~ "]")
+    P("[" ~ skip ~ elem.rep(sep = skip ~ "," ~ skip) ~ ",".? ~ skip ~ "]")
       .map(l => Value.Arr(l.toList))
   val inlineTable: Parser[Value.Tbl] =
     (if (extensions.contains(MultiLineInlineTables))
-      P("{" ~ skip ~ pair.rep(sep = "," ~ skip) ~ ",".? ~ skip ~ "}")
+      P("{" ~ skip ~ pair.rep(sep = skip ~ "," ~ skip) ~ ",".? ~ skip ~ "}")
      else
-      P("{" ~ skipWs ~ pair.rep(sep = "," ~ skipWs) ~ skipWs ~ "}")
+      P("{" ~ skipWs ~ pair.rep(sep = skipWs ~ "," ~ skipWs) ~ skipWs ~ "}")
     ).map(p => Value.Tbl(p.toMap))
 
   val tableIds: Parser[Seq[String]] =

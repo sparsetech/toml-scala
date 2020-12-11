@@ -9,4 +9,6 @@ object Value extends PlatformValue {
   case class Num (value : Long              ) extends Value
   case class Tbl (values: Map[String, Value]) extends Value
   case class Arr (values: List[Value]       ) extends Value
+  case class Variable(identifier: String    ) extends Value
+  case class Concat  (l: Value, r: Value    ) extends Value
 }

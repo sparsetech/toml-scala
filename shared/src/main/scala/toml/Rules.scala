@@ -12,6 +12,7 @@ private[toml] case class NamedFunction[T, V](f: T => V, name: String)
 sealed trait Extension
 object Extension {
   case object MultiLineInlineTables extends Extension
+  case object Variables             extends Extension
 }
 
 case object Rules extends toml.Rules(Set())
@@ -126,6 +127,14 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
     P("[[" ~ skipWs ~ tableIds ~ skipWs ~ "]]")
 
   val pairNode: Parser[Node.Pair] = pair.map { case (k, v) => Node.Pair(k, v) }
+
+  val variableIdent: Parser[String] = "$" ~ bareKey
+  val variableAssign: Parser[Node.Variable] =
+    (variableIdent ~ skipWs ~ "=" ~ skipWs ~ elem)
+      .map { case (k, v) => Node.Variable(k, v) }
+  val variableAccess: Parser[Value.Variable] =
+    variableIdent.map(Value.Variable(_))
+
   val table: Parser[Node.NamedTable] =
     P(tableDef ~ skip ~ pair.rep(sep = skip)).map { case (a, b) =>
       Node.NamedTable(a.toList, b.toList)
@@ -135,10 +144,24 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
       Node.NamedArray(a.toList, b.toList)
     }
 
-  lazy val elem: Parser[Value] =
-    P(date | string | boolean | double | integer | array | inlineTable)
+  // TODO left recursion
+  val concat: Parser[Value.Concat] =
+    P(elem ~ skipWs ~ "+" ~ skipWs ~ elem).map { case (l, r) =>
+      Value.Concat(l, r)
+    }
 
-  val node: Parser[Node] = P(pairNode | table | tableArray)
+  lazy val elem: Parser[Value] =
+    if (!extensions.contains(Variables))
+      P(date | string | boolean | double | integer | array | inlineTable)
+    else
+      P(date | string | boolean | double | integer | array | inlineTable | variableAccess)
+
+  val node: Parser[Node] =
+    if (!extensions.contains(Variables))
+      P(pairNode | table | tableArray)
+    else
+      P(pairNode | table | tableArray | variableAssign)
+
   val root: Parser[Root] = P(skip ~ node.rep(sep = skip) ~ skip ~ End)
     .map(nodes => Root(nodes.toList))
 }

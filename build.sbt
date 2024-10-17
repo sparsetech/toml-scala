@@ -3,8 +3,10 @@ import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 val Scala2_12  = "2.12.19"
 val Scala2_13  = "2.13.14"
+val Scala3     = "3.3.3"
 val FastParse  = "3.1.1"
 val Shapeless  = "2.3.12"
+val Shapeless3  = "3.4.3"
 val ScalaCheck = "1.18.1"
 val ScalaTest  = "3.2.19"
 
@@ -15,7 +17,7 @@ val SharedSettings = Seq(
   organization := "tech.sparse",
 
   scalaVersion       := Scala2_13,
-  crossScalaVersions := Seq(Scala2_13, Scala2_12),
+  crossScalaVersions := Seq(Scala3, Scala2_13, Scala2_12),
 
   pomExtra :=
     <url>https://github.com/sparsetech/toml-scala</url>
@@ -49,9 +51,14 @@ lazy val toml =
     .settings(
       libraryDependencies ++= Seq(
         "com.lihaoyi" %%% "fastparse" % FastParse,
-        "com.chuusai"   %%% "shapeless" % Shapeless,
         "org.scalacheck" %%% "scalacheck" % ScalaCheck % Test,
         "org.scalatest"  %%% "scalatest"  % ScalaTest  % Test,
         "org.scalatestplus" %%% s"scalacheck-${ScalaCheck.split('.').take(2).mkString("-")}" % ScalaTestScalaCheck % Test
-      )
+      ),
+      libraryDependencies += {
+        if(scalaVersion.value.startsWith("3."))
+          "org.typelevel" %%% "shapeless3-deriving" % Shapeless3
+        else
+          "com.chuusai" %%% "shapeless" % Shapeless
+      }
     )

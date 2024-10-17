@@ -1,0 +1,5 @@
+package toml
+
+trait TomlVersionSpecific {
+  
+}

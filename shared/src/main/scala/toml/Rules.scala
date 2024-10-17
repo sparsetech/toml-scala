@@ -55,7 +55,7 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
       SingleQuote.toString ~/
       (!SingleQuote.toString ~ AnyChar).rep.! ~
       SingleQuote.toString
-    ).map(Value.Str)
+    ).map(Value.Str.apply)
   def multiLineBasicStr[$: P]: P[Value.Str] =
     P(
       MultiLineDoubleQuote ~/
@@ -69,7 +69,7 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
       newLine.? ~
       (!MultiLineSingleQuote ~ AnyChar).rep.! ~
       MultiLineSingleQuote
-    ).map(Value.Str)
+    ).map(Value.Str.apply)
 
   def string[$: P]: P[Value.Str] = P(
     multiLineBasicStr   |

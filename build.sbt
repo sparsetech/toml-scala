@@ -6,7 +6,6 @@ val Scala2_13  = "2.13.14"
 val Scala3     = "3.3.3"
 val FastParse  = "3.1.1"
 val Shapeless  = "2.3.12"
-val Shapeless3  = "3.4.3"
 val ScalaCheck = "1.18.1"
 val ScalaTest  = "3.2.19"
 
@@ -55,10 +54,10 @@ lazy val toml =
         "org.scalatest"  %%% "scalatest"  % ScalaTest  % Test,
         "org.scalatestplus" %%% s"scalacheck-${ScalaCheck.split('.').take(2).mkString("-")}" % ScalaTestScalaCheck % Test
       ),
-      libraryDependencies += {
+      libraryDependencies ++= {
         if(scalaVersion.value.startsWith("3."))
-          "org.typelevel" %%% "shapeless3-deriving" % Shapeless3
+          Seq.empty
         else
-          "com.chuusai" %%% "shapeless" % Shapeless
+          Seq("com.chuusai" %%% "shapeless" % Shapeless)
       }
     )

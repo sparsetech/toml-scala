@@ -1,5 +1,3 @@
 package toml
 
-trait TomlVersionSpecific {
-  
-}
+trait TomlVersionSpecific

@@ -1,13 +1,13 @@
 package toml
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import Value._
 
-class EmbedSpec extends FunSuite {
+class EmbedSpec extends AnyFunSuite {
   test("One pair") {
     val pair = """a = 1"""
-    val node = Rules.root.parse(pair).get.value
+    val node = fastparse.parse(pair, Rules.root(_)).get.value
     assert(Embed.root(node) == Right(Tbl(Map("a" -> Num(1)))))
   }
 
@@ -16,7 +16,7 @@ class EmbedSpec extends FunSuite {
       """b = 2
         |a = 1
       """.stripMargin
-    val node2 = Rules.root.parse(pairs).get.value
+    val node2 = fastparse.parse(pairs, Rules.root(_)).get.value
     assert(Embed.root(node2) == Right(Tbl(Map(
       "a" -> Num(1), "b" -> Num(2)))))
   }
@@ -27,7 +27,7 @@ class EmbedSpec extends FunSuite {
         |[table]
         |a = 1
       """.stripMargin
-    val node = Rules.root.parse(table).get.value
+    val node = fastparse.parse(table, Rules.root(_)).get.value
     assert(Embed.root(node) ==
       Right(Tbl(Map("table" -> Tbl(Map("a" -> Num(1)))))))
   }
@@ -39,7 +39,7 @@ class EmbedSpec extends FunSuite {
         |[table]
         |b = 2
       """.stripMargin
-    val node = Rules.root.parse(table).get.value
+    val node = fastparse.parse(table, Rules.root(_)).get.value
     assert(Embed.root(node) ==
       Right(Tbl(Map("a" -> Num(1), "table" -> Tbl(Map("b" -> Num(2)))))))
   }
@@ -50,7 +50,7 @@ class EmbedSpec extends FunSuite {
         |[table.table2]
         |value = 42
       """.stripMargin
-    val node = Rules.root.parse(table).get.value
+    val node = fastparse.parse(table, Rules.root(_)).get.value
     assert(Embed.root(node) ==
       Right(Tbl(Map("table" ->
         Tbl(Map("table2" ->
@@ -65,7 +65,7 @@ class EmbedSpec extends FunSuite {
         |[table.table3]
         |value = 42
       """.stripMargin
-    val node = Rules.root.parse(table).get.value
+    val node = fastparse.parse(table, Rules.root(_)).get.value
     assert(Embed.root(node) ==
       Right(Tbl(Map(
         "table" -> Tbl(Map(
@@ -80,7 +80,7 @@ class EmbedSpec extends FunSuite {
         |[table.table3]
         |value = 42
       """.stripMargin
-    val node = Rules.root.parse(table).get.value
+    val node = fastparse.parse(table, Rules.root(_)).get.value
     assert(Embed.root(node) ==
       Right(Tbl(Map(
         "table" -> Tbl(Map(
@@ -96,7 +96,7 @@ class EmbedSpec extends FunSuite {
         |           { x = 7, y = 8, z = 9 },
         |           { x = 2, y = 4, z = 8 } ]
       """.stripMargin
-    val node = Rules.root.parse(tableList).get.value
+    val node = fastparse.parse(tableList, Rules.root(_)).get.value
     assert(Embed.root(node) ==
       Right(Tbl(Map(
         "points" -> Arr(List(
@@ -119,7 +119,7 @@ class EmbedSpec extends FunSuite {
         |colour = "grey"
       """.stripMargin
 
-    val node = Rules.root.parse(array).get.value
+    val node = fastparse.parse(array, Rules.root(_)).get.value
     assert(Embed.root(node) == Right(Tbl(Map(
       "products" -> Arr(List(
         Tbl(Map("name" -> Str("Hammer"), "sku" -> Num(738594937), "colour" -> Str("blue"))),
@@ -142,7 +142,7 @@ class EmbedSpec extends FunSuite {
         |colour = "grey"
       """.stripMargin
 
-    val node = Rules.root.parse(array).get.value
+    val node = fastparse.parse(array, Rules.root(_)).get.value
     assert(Embed.root(node) == Right(Tbl(Map(
       "products" -> Arr(List(
         Tbl(Map("name" -> Str("Hammer"), "sku" -> Num(738594937))),
@@ -174,7 +174,7 @@ class EmbedSpec extends FunSuite {
         |    name = "plantain"
       """.stripMargin
 
-    val node = Rules.root.parse(array).get.value
+    val node = fastparse.parse(array, Rules.root(_)).get.value
     assert(Embed.root(node) == Right(Tbl(Map(
       "fruit" -> Arr(List(
         Tbl(Map(

@@ -1,7 +1,7 @@
 package toml
 
-import scala.meta.internal.fastparse.all._
+import fastparse._
 
 trait PlatformRules {
-  val date = StringIn().map(_ => null.asInstanceOf[Value])
+  def date[$: P] = StringIn().map(_ => null.asInstanceOf[Value])
 }

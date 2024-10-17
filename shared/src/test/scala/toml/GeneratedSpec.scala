@@ -1,19 +1,21 @@
 package toml
 
 import org.scalatest.prop._
-import org.scalatest.{Matchers, PropSpec}
-import scala.meta.internal.fastparse.all._
-import scala.meta.internal.fastparse.core.Parsed.{Failure, Success}
+import org.scalatest.propspec.AnyPropSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import fastparse._
+import fastparse.Parsed.{Failure, Success}
 
 import scala.util.Try
 
-class GeneratedSpec extends PropSpec with PropertyChecks with Matchers {
+class GeneratedSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Matchers {
   import TestHelpers._
 
   property("Parse arrays") {
     import Generators.Arrays._
     forAll(arrayGen) { s: String =>
-      shouldBeSuccess(Rules.elem.parse(s))
+      shouldBeSuccess(parse(s, Rules.elem(_)))
     }
   }
 
@@ -21,7 +23,7 @@ class GeneratedSpec extends PropSpec with PropertyChecks with Matchers {
     import Generators.Numbers._
     forAll(validLongGen) { s: String =>
       val expected = Success(Value.Num(Rules.rmUnderscore(s).toLong), s.length)
-      Rules.elem.parse(s) shouldBe expected
+      parse(s, Rules.elem(_)) shouldBe expected
     }
   }
 
@@ -29,7 +31,7 @@ class GeneratedSpec extends PropSpec with PropertyChecks with Matchers {
     import Generators.Numbers._
     forAll(validDoubleGen) { s: String =>
       val expected = Success(Value.Real(Rules.rmUnderscore(s).toDouble), s.length)
-      Rules.elem.parse(s) shouldBe expected
+      parse(s, Rules.elem(_)) shouldBe expected
     }
   }
 
@@ -38,56 +40,58 @@ class GeneratedSpec extends PropSpec with PropertyChecks with Matchers {
 
     forAll(validBoolGen) { s: String =>
       val expected = Success(toBool(s), s.length)
-      Rules.elem.parse(s) shouldBe expected
+      parse(s, Rules.elem(_)) shouldBe expected
     }
   }
 
   property("Detect if booleans are not lowercase") {
     import Generators.Booleans._
     forAll(invalidBoolGen) { s: String =>
-      shouldBeFailure(Rules.elem.parse(s))
+      shouldBeFailure(parse(s, Rules.elem(_)))
     }
   }
 
   property("Detect if any string is unbalanced (missing quote)") {
     import Generators.Strings._
     forAll(invalidStrGen) { s: String =>
-      shouldBeFailure(Rules.elem.parse(s))
+      shouldBeFailure(parse(s, Rules.elem(_)))
     }
   }
 
   property("Parse pairs (key and value)") {
     import Generators.Tables._
     forAll(pairGen) { s: String =>
-      shouldBeSuccess[(String, Value)](Rules.pair.parse(s))
+      shouldBeSuccess[(String, Value)](parse(s, Rules.pair(_)))
     }
   }
 
   property("Parse pairs (with `root` parser)") {
     import Generators.Tables._
     forAll(pairGen) { s: String =>
-      shouldBeSuccess(Rules.root.parse(s))
+      shouldBeSuccess(parse(s, Rules.root(_)))
     }
   }
 
   property("Parse table definitions") {
     import Generators.Tables._
     forAll(tableDefGen) { s: String =>
-      shouldBeSuccess[Seq[String]](Rules.tableDef.parse(s))
+      shouldBeSuccess[Seq[String]](parse(s, Rules.tableDef(_)))
     }
   }
 
   property("Parse tables") {
+    import NoWhitespace._
     import Generators.Tables._
+    def p[$: P] = P(Rules.skip ~ Rules.table)
     forAll(tableGen) { s: String =>
-      shouldBeSuccess[Node.NamedTable]((Rules.skip ~ Rules.table).parse(s))
+      shouldBeSuccess[Node.NamedTable](parse(s, p(_)))
     }
   }
 
   property("Parse tables (with `root` parser)") {
     import Generators.Tables._
     forAll(tableGen) { s: String =>
-      shouldBeSuccess(Rules.root.parse(s))
+      shouldBeSuccess(parse(s, Rules.root(_)))
     }
   }
 }

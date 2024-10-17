@@ -1,20 +1,20 @@
 package toml
 
 object Constants {
-  val SingleQuote = '\''
-  val DoubleQuote = '"'
+  final val SingleQuote = '\''
+  final val DoubleQuote = '"'
 
-  val MultiLineSingleQuote = "'''"
-  val MultiLineDoubleQuote = "\"\"\""
+  final val MultiLineSingleQuote = "'''"
+  final val MultiLineDoubleQuote = "\"\"\""
 
-  val NumbersRange = '0' to '9'
-  val LettersRange = ('a' to 'z') ++ ('A' to 'Z')
+  final val NumbersRange = "0-9"
+  final val LettersRange = "a-zA-Z"
 
-  val Dashes = Set('-', '_')
+  final val Dashes = "\\-_"
 
-  val Lf   = "\n"
-  val CrLf = "\r\n"
+  final val Lf   = "\n"
+  final val CrLf = "\r\n"
 
-  val WhitespaceChars = Set(' ', '\t')
-  val EscapeChars  = Set('\b', '\t', '\n', '\f', '\r', '"', '\\')
+  final val WhitespaceChars = " \t"
+  final val EscapeChars  = "\b\t\n\f\r\"\\"
 }

@@ -3,10 +3,11 @@ package toml
 import java.time._
 import java.io.File
 
-import org.scalatest.{FunSuite, Matchers}
-import scala.meta.internal.fastparse.core.Parsed._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import fastparse.Parsed._
 
-class FileSpec extends FunSuite with Matchers {
+class FileSpec extends AnyFunSuite with Matchers {
   import TestHelpers._
 
   test("Parse multi-line strings") {

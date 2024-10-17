@@ -1,10 +1,10 @@
 package toml
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 import Codecs._
 
-class CodecSpec extends FunSuite {
+class CodecSpec extends AnyFunSuite {
   test("Booleans") {
     case class BoolPair(a: Boolean, b: Boolean)
 
@@ -20,7 +20,7 @@ class CodecSpec extends FunSuite {
   }
 
   test("Strings") {
-    val elem = Rules.elem.parse("\"test\"").get.value
+    val elem = fastparse.parse("\"test\"", Rules.elem(_)).get.value
     val result = new Toml.CodecHelperValue[String].apply(elem)
     assert(result == Right("test"))
   }
@@ -53,7 +53,7 @@ class CodecSpec extends FunSuite {
   }
 
   test("Lists") {
-    val elem = Rules.elem.parse("""["test", "a"]""").get.value
+    val elem = fastparse.parse("""["test", "a"]""", Rules.elem(_)).get.value
     val result = new Toml.CodecHelperValue[List[String]].apply(elem)
     assert(result == Right(List("test", "a")))
   }

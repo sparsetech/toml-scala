@@ -2,13 +2,13 @@ package toml
 
 import shapeless._
 
-import scala.meta.internal.fastparse.core.Parsed._
+import fastparse.Parsed
 
 object Toml {
   def parse(toml: String, extensions: Set[Extension] = Set()): Either[Parse.Error, Value.Tbl] =
-    new Rules(extensions).root.parse(toml) match {
-      case Success(v, _)    => Embed.root(v)
-      case f: Failure[_, _] => Left(List() -> f.msg)
+    fastparse.parse(toml, new Rules(extensions).root(_)) match {
+      case Parsed.Success(v, _)    => Embed.root(v)
+      case f: Parsed.Failure => Left(List() -> f.msg)
     }
 
   def generate(root: Root): String = Generate.generate(root)

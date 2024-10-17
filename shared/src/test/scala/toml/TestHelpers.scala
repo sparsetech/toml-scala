@@ -1,32 +1,32 @@
 package toml
 
-import scala.meta.internal.fastparse.all._
-import scala.meta.internal.fastparse.core.Parsed._
+import fastparse._
+import fastparse.Parsed._
 
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
 
 object TestHelpers {
   import Matchers._
 
   def testSuccess(example: String, rules: Rules = Rules): Root =
-    rules.root.parse(example) match {
+    parse(example, rules.root(_), verboseFailures = true) match {
       case Success(v, _)    => v
-      case f: Failure[_, _] => fail(s"Failed to parse `$example`: ${f.msg}")
+      case f: Failure => fail(s"Failed to parse `$example`: ${f.longMsg}")
     }
 
   def testFailure(example: String, rules: Rules = Rules): Unit =
-    rules.root.parse(example) match {
+    parse(example,rules.root(_)) match {
       case Success(_, _) => fail(s"Did not fail: $example")
-      case _: Failure[_, _] =>
+      case _: Failure =>
     }
 
   def shouldBeSuccess[T](r: Parsed[T]): Unit = r match {
-    case s: Success[T, _, _] =>
-    case f: Failure[_, _]    => fail(s"$r is not a Success: $f")
+    case s: Success[T] =>
+    case f: Failure    => fail(s"$r is not a Success: $f")
   }
 
   def shouldBeFailure[T](r: Parsed[T]): Unit = r match {
-    case s: Success[T, _, _] => fail(s"$r is not a Failure.")
-    case f: Failure[_, _]    =>
+    case s: Success[T] => fail(s"$r is not a Failure.")
+    case f: Failure =>
   }
 }

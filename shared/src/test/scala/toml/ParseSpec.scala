@@ -3,9 +3,9 @@ package toml
 import Value._
 import Node._
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class ParseSpec extends FunSuite {
+class ParseSpec extends AnyFunSuite {
   test("Parse strings") {
     val toml =
       """

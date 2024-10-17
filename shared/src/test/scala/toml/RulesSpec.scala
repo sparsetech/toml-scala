@@ -1,9 +1,10 @@
 package toml
 
-import org.scalatest.{FunSuite, Matchers}
-import scala.meta.internal.fastparse.core.Parsed._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import fastparse.Parsed._
 
-class RulesSpec extends FunSuite with Matchers {
+class RulesSpec extends AnyFunSuite with Matchers {
   import TestHelpers._
 
   val smallTest =

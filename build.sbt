@@ -1,21 +1,21 @@
 // shadow sbt-scalajs' crossProject and CrossType from Scala.js 0.6.x
 import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
-val Scala2_11  = "2.11.12"
-val Scala2_12  = "2.12.10"
-val Scala2_13  = "2.13.1"
-val FastParse  = "1.0.1"
-val Shapeless  = "2.3.3"
-val ScalaCheck = "1.14.2"
-val ScalaTest  = "3.0.8"
-val ScalaTestNative = "3.2.0-SNAP10"
+val Scala2_12  = "2.12.19"
+val Scala2_13  = "2.13.14"
+val FastParse  = "3.1.1"
+val Shapeless  = "2.3.12"
+val ScalaCheck = "1.18.1"
+val ScalaTest  = "3.2.19"
+
+val ScalaTestScalaCheck  = s"$ScalaTest.0"
 
 val SharedSettings = Seq(
   name         := "toml-scala",
   organization := "tech.sparse",
 
   scalaVersion       := Scala2_13,
-  crossScalaVersions := Seq(Scala2_13, Scala2_12, Scala2_11),
+  crossScalaVersions := Seq(Scala2_13, Scala2_12),
 
   pomExtra :=
     <url>https://github.com/sparsetech/toml-scala</url>
@@ -40,7 +40,7 @@ val SharedSettings = Seq(
 lazy val root = project.in(file("."))
   .aggregate(toml.js, toml.jvm, toml.native)
   .settings(SharedSettings: _*)
-  .settings(skip in publish := true)
+  .settings(publish / skip := true)
 
 lazy val toml =
   crossProject(JSPlatform, JVMPlatform, NativePlatform)
@@ -48,29 +48,10 @@ lazy val toml =
     .settings(SharedSettings)
     .settings(
       libraryDependencies ++= Seq(
-        "org.scalameta" %%% "fastparse" % FastParse,
-        "com.chuusai"   %%% "shapeless" % Shapeless
+        "com.lihaoyi" %%% "fastparse" % FastParse,
+        "com.chuusai"   %%% "shapeless" % Shapeless,
+        "org.scalacheck" %%% "scalacheck" % ScalaCheck % Test,
+        "org.scalatest"  %%% "scalatest"  % ScalaTest  % Test,
+        "org.scalatestplus" %%% s"scalacheck-${ScalaCheck.split('.').take(2).mkString("-")}" % ScalaTestScalaCheck % Test
       )
-    )
-    .jsSettings(
-      libraryDependencies ++= Vector(
-        "org.scalacheck" %%% "scalacheck" % ScalaCheck % "test",
-        "org.scalatest"  %%% "scalatest"  % ScalaTest  % "test"
-      )
-    )
-    .jvmSettings(
-      libraryDependencies ++= Vector(
-        "org.scalacheck" %% "scalacheck" % ScalaCheck % "test",
-        "org.scalatest"  %% "scalatest"  % ScalaTest  % "test"
-      )
-    )
-    .nativeSettings(
-      scalaVersion       := Scala2_11,
-      crossScalaVersions := Seq(Scala2_11),
-      // See https://github.com/scalalandio/chimney/issues/78#issuecomment-419705142
-      nativeLinkStubs    := true,
-      libraryDependencies ++= Vector(
-        "org.scalatest" %%% "scalatest" % ScalaTestNative  % "test"
-      ),
-      excludeFilter in Test := "*GeneratedSpec*" || "*Generators*"
     )

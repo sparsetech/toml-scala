@@ -3,9 +3,9 @@ package toml
 import Node._
 import Value._
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class GenerationSpec extends FunSuite {
+class GenerationSpec extends AnyFunSuite {
   def check(root: Root, expected: String): Unit = {
     val generated = Toml.generate(root)
     val parsed = Toml.parse(generated)

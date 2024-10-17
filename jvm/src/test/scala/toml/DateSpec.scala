@@ -2,10 +2,11 @@ package toml
 
 import java.time._
 
-import org.scalatest.{FunSuite, Matchers}
-import scala.meta.internal.fastparse.core.Parsed._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
+import fastparse.Parsed._
 
-class DateSpec extends FunSuite with Matchers {
+class DateSpec extends AnyFunSuite with Matchers {
   import TestHelpers._
 
   test("Parse local date") {

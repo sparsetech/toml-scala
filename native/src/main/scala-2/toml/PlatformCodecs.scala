@@ -1,3 +1,0 @@
-package toml
-
-trait PlatformCodecs

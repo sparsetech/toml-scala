@@ -44,7 +44,7 @@ class Rules(extensions: Set[Extension]) extends PlatformRules {
   def unicodeEsc[$: P]     = P("u" ~ hexDigit.rep(4))
   def unicodeEscLong[$: P] = P("U" ~ hexDigit.rep(8))
   def escape[$: P]         = P("\\" ~ (
-    CharIn("\"/\\bfnrt") | unicodeEsc | unicodeEscLong
+    CharIn("\"/\\\\bfnrt") | unicodeEsc | unicodeEscLong
   ))
 
   def basicStr[$: P]: P[Value.Str] =

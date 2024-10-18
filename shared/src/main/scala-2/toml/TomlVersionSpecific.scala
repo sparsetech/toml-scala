@@ -4,6 +4,8 @@ import shapeless._
 
 trait TomlVersionSpecific {
 
+  def parse(toml: String, extensions: Set[Extension] = Set()): Either[Parse.Error, Value.Tbl]
+
   class CodecHelperGeneric[A] {
     def apply[D <: HList, R <: HList](table: Value.Tbl)(implicit
         generic: LabelledGeneric.Aux[A, R],

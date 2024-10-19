@@ -14,14 +14,14 @@ class GeneratedSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Match
 
   property("Parse arrays") {
     import Generators.Arrays._
-    forAll(arrayGen) { s: String =>
+    forAll(arrayGen) { (s: String) =>
       shouldBeSuccess(parse(s, Rules.elem(_)))
     }
   }
 
   property("Parse integers") {
     import Generators.Numbers._
-    forAll(validLongGen) { s: String =>
+    forAll(validLongGen) { (s: String) =>
       val expected = Success(Value.Num(Rules.rmUnderscore(s).toLong), s.length)
       parse(s, Rules.elem(_)) shouldBe expected
     }
@@ -29,7 +29,7 @@ class GeneratedSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Match
 
   ignore("Parse doubles") {
     import Generators.Numbers._
-    forAll(validDoubleGen) { s: String =>
+    forAll(validDoubleGen) { (s: String) =>
       val expected = Success(Value.Real(Rules.rmUnderscore(s).toDouble), s.length)
       parse(s, Rules.elem(_)) shouldBe expected
     }
@@ -38,7 +38,7 @@ class GeneratedSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Match
   property("Parse booleans") {
     import Generators.Booleans._
 
-    forAll(validBoolGen) { s: String =>
+    forAll(validBoolGen) { (s: String) =>
       val expected = Success(toBool(s), s.length)
       parse(s, Rules.elem(_)) shouldBe expected
     }
@@ -46,35 +46,35 @@ class GeneratedSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Match
 
   property("Detect if booleans are not lowercase") {
     import Generators.Booleans._
-    forAll(invalidBoolGen) { s: String =>
+    forAll(invalidBoolGen) { (s: String) =>
       shouldBeFailure(parse(s, Rules.elem(_)))
     }
   }
 
   property("Detect if any string is unbalanced (missing quote)") {
     import Generators.Strings._
-    forAll(invalidStrGen) { s: String =>
+    forAll(invalidStrGen) { (s: String) =>
       shouldBeFailure(parse(s, Rules.elem(_)))
     }
   }
 
   property("Parse pairs (key and value)") {
     import Generators.Tables._
-    forAll(pairGen) { s: String =>
+    forAll(pairGen) { (s: String) =>
       shouldBeSuccess[(String, Value)](parse(s, Rules.pair(_)))
     }
   }
 
   property("Parse pairs (with `root` parser)") {
     import Generators.Tables._
-    forAll(pairGen) { s: String =>
+    forAll(pairGen) { (s: String) =>
       shouldBeSuccess(parse(s, Rules.root(_)))
     }
   }
 
   property("Parse table definitions") {
     import Generators.Tables._
-    forAll(tableDefGen) { s: String =>
+    forAll(tableDefGen) { (s: String) =>
       shouldBeSuccess[Seq[String]](parse(s, Rules.tableDef(_)))
     }
   }
@@ -83,14 +83,14 @@ class GeneratedSpec extends AnyPropSpec with ScalaCheckPropertyChecks with Match
     import NoWhitespace._
     import Generators.Tables._
     def p[$: P] = P(Rules.skip ~ Rules.table)
-    forAll(tableGen) { s: String =>
+    forAll(tableGen) { (s: String) =>
       shouldBeSuccess[Node.NamedTable](parse(s, p(_)))
     }
   }
 
   property("Parse tables (with `root` parser)") {
     import Generators.Tables._
-    forAll(tableGen) { s: String =>
+    forAll(tableGen) { (s: String) =>
       shouldBeSuccess(parse(s, Rules.root(_)))
     }
   }

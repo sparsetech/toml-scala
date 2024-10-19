@@ -10,8 +10,8 @@ object Generators {
     def enquoteStr(s: String, q: Char): String = q + s + q
 
     def quotedStrGen(quote: Char): Gen[String] = for {
-      s <- Gen.alphaStr if s.nonEmpty
-    } yield enquoteStr(s.filter(_ != quote), quote)
+      s <- Gen.alphaStr if s.nonEmpty && !s.contains(quote)
+    } yield enquoteStr(s, quote)
 
     def doubleQuoteStrGen: Gen[String] = quotedStrGen(DoubleQuote)
     def singleQuoteStrGen: Gen[String] = quotedStrGen(SingleQuote)

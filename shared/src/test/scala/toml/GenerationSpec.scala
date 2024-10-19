@@ -140,7 +140,7 @@ class GenerationSpec extends AnyFunSuite {
       "-Yno-adapted-args",
       "-Ywarn-numeric-widen",
       "-feature"
-    ).map(Str)))))
+    ).map(Str.apply)))))
 
     val table =
       """

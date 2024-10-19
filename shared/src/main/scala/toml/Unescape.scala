@@ -31,11 +31,11 @@ object Unescape {
           case Some('r')  => "\r"
           case Some('\"') => "\""
           case Some('\\') => "\\"
-          case Some('u') if i + 4 >= str.length =>  // U+XXXX
+          case Some('u') if i + 4 <= str.length =>  // U+XXXX
             val dec = str.slice(i, i + 4)
             i += 4
             decodeUnicodeShort(dec)
-          case Some('U') if i + 8 >= str.length =>  // U+XXXXXXXX
+          case Some('U') if i + 8 <= str.length =>  // U+XXXXXXXX
             val dec = str.slice(i, i + 8)
             i += 8
             decodeUnicodeShort(dec)

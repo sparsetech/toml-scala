@@ -5,6 +5,9 @@
 
 toml-scala is a feature-complete implementation of [TOML](https://github.com/toml-lang/toml) for the Scala platform. It can parse TOML content into an AST or map it onto `case class` hierarchies. Furthermore, it can generate TOML back from an AST.
 
+## Status
+This library is no longer maintained. Please switch to [this fork](https://github.com/indoorvivants/toml-scala) maintained by Indoor Vivants, which adds support for Scala 3.
+
 ## Features
 - Standard-compliant
 - AST parsing

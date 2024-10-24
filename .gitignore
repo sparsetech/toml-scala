@@ -1,22 +1,22 @@
+project/target
+project/project
+.metals
+.bloop
+.vscode
 *.class
+*.sjsr
+
+project/.bloop
+
+.sbt
+
+modules/core/target
+
+root/target
+target
+
+.bsp
+
 *.log
 
-# sbt specific
-.cache/
-.history/
-.lib/
-dist/*
-target/
-lib_managed/
-src_managed/
-project/boot/
-project/plugins/project/
-/.bsp
-
-# Scala-IDE specific
-.scala_dependencies
-.worksheet
-
-/.idea/
-/.metals/
-.bloop/
+project/metals.sbt
